@@ -1,5 +1,9 @@
+### Intellij Idea ###
+
 .idea/
 out/
+
+### Maven ###
 
 target/
 pom.xml.tag
