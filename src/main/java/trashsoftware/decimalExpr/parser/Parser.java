@@ -56,7 +56,7 @@ public class Parser {
             } else if (token.isNumber()) {
                 ast.addNumber((BigDecimal) token.getValue());
             } else {
-                throw new ParseException("Unexpected token");
+                throw new ParseTimeException("Unexpected token");
             }
         }
         ast.build();
@@ -70,12 +70,9 @@ public class Parser {
     private void processOperator(String op, AbstractSyntaxTree ast, int index, int extraPrecedence) {
         UnaryOperator unaryOperator = builder.getUnaryOperatorMap().get(op);
         if (unaryOperator != null) {
-            int adjTokenIndex;
-            if (unaryOperator.isLeftAssociative()) {
-                adjTokenIndex = index - 1;
-            } else {
-                adjTokenIndex = index + 1;
-            }
+            // token at the side of the operator
+            int adjTokenIndex = unaryOperator.isLeftAssociative() ?
+                    index + 1 : index - 1;
             if (isUnary(adjTokenIndex, unaryOperator.isLeftAssociative())) {
                 ast.addUnaryOperator(unaryOperator, extraPrecedence);
                 return;
@@ -86,7 +83,7 @@ public class Parser {
             ast.addBinaryOperator(binaryOperator, extraPrecedence);
             return;
         }
-        throw new ParseException("Unsolved operator");
+        throw new ParseTimeException("Unsolved operator");
     }
 
     private boolean isUnary(int adjacentTokenIndex, boolean isLeftAssociative) {
@@ -99,11 +96,11 @@ public class Parser {
                 String symbol = (String) token.getValue();
                 return builder.getBinaryOperatorMap().containsKey(symbol)
                         || symbol.equals(",")
-                        || (isLeftAssociative && symbol.equals("(")
-                        || (!isLeftAssociative && symbol.equals(")"))
+                        || (!isLeftAssociative && symbol.equals("(")
+                        || (isLeftAssociative && symbol.equals(")"))
                 );
             } else {
-                throw new ParseException("Unexpected token");
+                throw new ParseTimeException("Unexpected token");
             }
         }
     }
@@ -111,7 +108,7 @@ public class Parser {
     private void processFunction(String identifier, AbstractSyntaxTree ast, int index) {
         Function function = builder.getFunctions().get(identifier);
         if (function == null) {
-            throw new ParseException(String.format("Unsolved function '%s'", identifier));
+            throw new ParseTimeException(String.format("Unsolved function '%s'", identifier));
         } else {
             Token parToken = tokens.get(index);
             assert parToken.isIdentifier() && "(".equals(parToken.getValue());
@@ -214,38 +211,8 @@ class AbstractSyntaxTree {
     void build() {
         if (inner == null) {
             buildExpr();
-            element.addChild(stack.pop());
-            if (!stack.isEmpty()) throw new ParseException("Unexpected");
-//            System.out.println(stack.size());
-//            if (!stack.isEmpty()) {
-//                List<Node> temp = new ArrayList<>();
-//                temp.add(stack.pop());
-//                while (!stack.isEmpty()) {
-//                    Node node = stack.pop();
-//                    if (node instanceof LeafNode) {
-//                        if (!temp.isEmpty()) throw new RuntimeException("???");
-//                        else temp.add(node);
-//                    } else if (node instanceof BinaryOperatorNode) {
-//                        ((BinaryOperatorNode) node).right = temp.get(0);
-//                        temp.set(0, node);
-//                    } else if (node instanceof UnaryOperatorNode) {
-//                        temp.add(node);
-//                    } else if (node instanceof BlockStmt) {
-//                        if (temp.isEmpty()) {
-//                            temp.add(node);
-//                        } else {
-//                            temp.add(0, node);
-//                        }
-//                    } else {
-//                        if (temp.isEmpty()) {
-//                            temp.add(node);
-//                        } else {
-//                            temp.set(0, node);
-//                        }
-//                    }
-//                }
-//                element.addChild(temp.get(0));
-//            }
+            if (!stack.isEmpty()) element.addChild(stack.pop());
+            if (!stack.isEmpty()) throw new ParseTimeException("Unexpected");
         } else {
             inner.build();
         }
@@ -280,7 +247,7 @@ class AbstractSyntaxTree {
             OperatorNode operatorNode = (OperatorNode) exprNodes.get(index);
             if (operatorNode instanceof UnaryOperatorNode) {
                 int valueIndex = ((UnaryOperatorNode) operatorNode).operator.isLeftAssociative()
-                        ? index + 1 : index - 1;
+                        ? index - 1 : index + 1;
                 ((UnaryOperatorNode) operatorNode).operand = exprNodes.remove(valueIndex);
             } else if (operatorNode instanceof BinaryOperatorNode) {
                 ((BinaryOperatorNode) operatorNode).left = exprNodes.get(index - 1);

@@ -113,7 +113,9 @@ class VariableNode extends LeafNode {
 
     @Override
     public BigDecimal eval(Map<String, BigDecimal> variables) {
-        return variables.get(variableName);
+        BigDecimal obj = variables.get(variableName);
+        if (obj == null) throw new NoSuchVariableException(String.format("Variable '%s' is not set", variableName));
+        return obj;
     }
 
     @Override
@@ -132,7 +134,7 @@ class FunctionNode extends Node {
 
     void addArgument(Node node) {
         if (arguments.size() >= function.getMostNumArgument()) {
-            throw new ParseException(String.format("Too many arguments for function '%s'", function.getName()));
+            throw new ParseTimeException(String.format("Too many arguments for function '%s'", function.getName()));
         } else {
             arguments.add(node);
         }
@@ -140,7 +142,7 @@ class FunctionNode extends Node {
 
     void throwErrorIfArgumentTooFew(int argumentCount) {
         if (argumentCount < function.getLeastNumArgument())
-            throw new ParseException(String.format("Too few arguments for function '%s'", function.getName()));
+            throw new ParseTimeException(String.format("Too few arguments for function '%s'", function.getName()));
     }
 
     boolean fulfilled() {

@@ -1,3 +1,14 @@
+### 0.1.2 ###
+
+*Added built-in functions:
+    *pi()
+    *e()
+    *sqrt()
+*Changed the meaning of left-associative
+*Added the check of unsolved variables
+*Integrated exceptions
+*Added precision
+
 ### 0.1.1 ###
 
 *Added built-in operators:

@@ -1,7 +1,7 @@
 package trashsoftware.decimalExpr;
 
 import trashsoftware.decimalExpr.expression.*;
-import trashsoftware.decimalExpr.util.ExpressionBuilderException;
+import trashsoftware.decimalExpr.parser.ParseTimeException;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,11 +11,13 @@ import java.util.Set;
 @SuppressWarnings("WeakerAccess")
 public class DecimalExprBuilder {
 
-    private String expression;
     private final Set<String> variableNames = new HashSet<>();
     private final Map<String, Function> functions = new HashMap<>();
     private final Map<String, BinaryOperator> binaryOperatorMap = new HashMap<>();
     private final Map<String, UnaryOperator> unaryOperatorMap = new HashMap<>();
+
+    private String expression;
+    private int precision = 16;
 
     public DecimalExprBuilder() {
         operator(Operators.ADDITION);
@@ -26,17 +28,40 @@ public class DecimalExprBuilder {
         operator(Operators.POWER);
         operator(Operators.NEGATION);
 
+        function(Functions.E);
+        function(Functions.PI);
         function(Functions.ABS);
     }
 
+    /**
+     * Sets up the expression {@code String} object to be evaluated.
+     * <p>
+     * The expression is case-sensitive, but not space-sensitive.
+     *
+     * @param expression the expression text
+     * @return a reference to this object
+     */
     public DecimalExprBuilder expression(String expression) {
         this.expression = expression;
         return this;
     }
 
+    /**
+     * Sets up the rounding precision of this expression, in decimal.
+     * <p>
+     * If the user does not call this method, the default precision is 16 digits.
+     *
+     * @param precision the rounding precision, in decimal
+     * @return a reference to this object
+     */
+    public DecimalExprBuilder precision(int precision) {
+        this.precision = precision;
+        return this;
+    }
+
     public DecimalExprBuilder variable(String variable) {
         if (variableNames.contains(variable)) {
-            throw new ExpressionBuilderException("Variable " + variable + " already defined");
+            throw new ParseTimeException("Variable '" + variable + "' already defined");
         }
         variableNames.add(variable);
         return this;
@@ -53,9 +78,18 @@ public class DecimalExprBuilder {
         } else if (operator instanceof BinaryOperator) {
             binaryOperatorMap.put(operator.getSymbol(), (BinaryOperator) operator);
         } else {
-            throw new ExpressionBuilderException("Unknown operator type");
+            throw new ParseTimeException("Unknown operator type");
         }
         return this;
+    }
+
+    /**
+     * Returns the {@code DecimalExpr} built by this builder.
+     *
+     * @return the @code DecimalExpr} built by this builder
+     */
+    public DecimalExpr build() {
+        return new DecimalExpr(this);
     }
 
     public Set<String> getVariableNames() {
@@ -78,7 +112,7 @@ public class DecimalExprBuilder {
         return binaryOperatorMap;
     }
 
-    public DecimalExpr build() {
-        return new DecimalExpr(this);
+    public int getPrecision() {
+        return precision;
     }
 }

@@ -27,7 +27,8 @@ public class TestMain {
             }
         };
         DecimalExprBuilder deb = new DecimalExprBuilder()
-                .expression("x + 3 + abs(-(4 + 2)) + log(2, 3) + g(1, 2)")
+                .expression("x + 3 + abs(-(4 + 2)) + log(2, 3) + g(1, 2) + e()")
+                .precision(64)
                 .variable("x")
                 .function(g)
                 .function(f);

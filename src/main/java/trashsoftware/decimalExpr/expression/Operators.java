@@ -9,7 +9,7 @@ public class Operators {
 
     public final static int PRECEDENCE_ADDITION = 10;
     public final static int PRECEDENCE_SUBTRACTION = 10;
-    public final static int PRECEDENCE_NEGATION = 10;
+    public final static int PRECEDENCE_NEGATION = 11;
     public final static int PRECEDENCE_MULTIPLICATION = 20;
     public final static int PRECEDENCE_DIVISION = 20;
     public final static int PRECEDENCE_MODULO = 20;
@@ -68,7 +68,7 @@ public class Operators {
         }
     };
 
-    public static Operator NEGATION = new UnaryOperator("-", PRECEDENCE_NEGATION, true) {
+    public static Operator NEGATION = new UnaryOperator("-", PRECEDENCE_NEGATION, false) {
         @Override
         public BigDecimal eval(BigDecimal number) {
             return number.negate();
