@@ -1,0 +1,7 @@
+### 0.1.1 ###
+
+*Added built-in operators:
+    *modulo '%'
+    *integer power '^'
+*Added EvaluateException for evaluate time errors
+*Bug fixes

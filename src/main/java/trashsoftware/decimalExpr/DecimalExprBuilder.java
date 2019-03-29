@@ -22,6 +22,8 @@ public class DecimalExprBuilder {
         operator(Operators.SUBTRACTION);
         operator(Operators.MULTIPLICATION);
         operator(Operators.DIVISION);
+        operator(Operators.MODULO);
+        operator(Operators.POWER);
         operator(Operators.NEGATION);
 
         function(Functions.ABS);

@@ -1,18 +1,21 @@
 package trashsoftware.decimalExpr.expression;
 
+import trashsoftware.decimalExpr.util.Util;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class Operators {
 
-    public final static int PRECEDENCE_ADDITION = 50;
-    public final static int PRECEDENCE_SUBTRACTION = 50;
-    public final static int PRECEDENCE_MULTIPLICATION = 100;
-    public final static int PRECEDENCE_DIVISION = 100;
-    public final static int PRECEDENCE_NEGATION = 200;
+    public final static int PRECEDENCE_ADDITION = 10;
+    public final static int PRECEDENCE_SUBTRACTION = 10;
+    public final static int PRECEDENCE_NEGATION = 10;
+    public final static int PRECEDENCE_MULTIPLICATION = 20;
+    public final static int PRECEDENCE_DIVISION = 20;
+    public final static int PRECEDENCE_MODULO = 20;
+    public final static int PRECEDENCE_POWER = 30;
 
-
-    public final static String[] POSSIBLE_OPERATORS = {"+", "-", "*", "/", "\\", "%", "^", "$", "#", "@", "!", "&",
+    private static String[] POSSIBLE_OPERATORS = {"+", "-", "*", "/", "\\", "%", "^", "$", "#", "@", "!", "&",
             "?", "<", ">", "|"};
 
     public static boolean isPossibleOperator(String s) {
@@ -47,6 +50,21 @@ public class Operators {
         @Override
         public BigDecimal eval(BigDecimal left, BigDecimal right) {
             return left.divide(right, RoundingMode.HALF_UP);
+        }
+    };
+
+    public static Operator MODULO = new BinaryOperator("%", PRECEDENCE_MODULO) {
+        @Override
+        public BigDecimal eval(BigDecimal left, BigDecimal right) {
+            return left.remainder(right);
+        }
+    };
+
+    public static Operator POWER = new BinaryOperator("^", PRECEDENCE_POWER) {
+        @Override
+        public BigDecimal eval(BigDecimal left, BigDecimal right) {
+            if (!Util.isInteger(right)) throw new NumberValueException("Non-integer power is not allowed");
+            return left.pow(right.intValue());
         }
     };
 

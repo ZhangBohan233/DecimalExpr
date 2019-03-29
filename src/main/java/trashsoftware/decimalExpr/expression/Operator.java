@@ -2,8 +2,8 @@ package trashsoftware.decimalExpr.expression;
 
 public abstract class Operator {
 
-    protected String symbol;
-    protected int precedence;
+    String symbol;
+    int precedence;
 
     public int getPrecedence() {
         return precedence;

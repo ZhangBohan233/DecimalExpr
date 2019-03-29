@@ -89,8 +89,8 @@ public class Parser {
         throw new ParseException("Unsolved operator");
     }
 
-    private boolean isUnary(int adjacentTokenIndex, boolean isLeftAssocitative) {
-        if (adjacentTokenIndex < 0 || adjacentTokenIndex > tokens.size()) {
+    private boolean isUnary(int adjacentTokenIndex, boolean isLeftAssociative) {
+        if (adjacentTokenIndex < 0 || adjacentTokenIndex >= tokens.size()) {
             return true;
         } else {
             Token token = tokens.get(adjacentTokenIndex);
@@ -99,8 +99,8 @@ public class Parser {
                 String symbol = (String) token.getValue();
                 return builder.getBinaryOperatorMap().containsKey(symbol)
                         || symbol.equals(",")
-                        || (isLeftAssocitative && symbol.equals("(")
-                        || (!isLeftAssocitative && symbol.equals(")"))
+                        || (isLeftAssociative && symbol.equals("(")
+                        || (!isLeftAssociative && symbol.equals(")"))
                 );
             } else {
                 throw new ParseException("Unexpected token");
