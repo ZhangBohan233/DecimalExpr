@@ -1,6 +1,8 @@
 package trashsoftware.decimalExpr.expression;
 
 
+import trashsoftware.numbers.Real;
+
 import java.math.BigDecimal;
 
 public abstract class Function {
@@ -35,7 +37,7 @@ public abstract class Function {
         return name;
     }
 
-    public abstract BigDecimal eval(BigDecimal... numbers);
+    public abstract Real eval(Real... numbers);
 
     @Override
     public int hashCode() {

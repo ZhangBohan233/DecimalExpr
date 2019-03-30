@@ -1,3 +1,11 @@
+##### 0.2 #####
+
+* Implemented a new number system:
+    * Interface 'Real' number, has two implementation, 'Rational' and 'Irrational'
+* Changed the evaluation type from 'BigDecimal' to 'Real'
+* Added support for macro:
+    * User now can define a sub-expression.
+
 ### 0.1.2 ###
 
 *Added built-in functions:

@@ -5,8 +5,8 @@ import trashsoftware.decimalExpr.expression.BinaryOperator;
 import trashsoftware.decimalExpr.expression.Function;
 import trashsoftware.decimalExpr.expression.Operators;
 import trashsoftware.decimalExpr.expression.UnaryOperator;
+import trashsoftware.numbers.Real;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.Stack;
 public class Parser {
 
     private DecimalExprBuilder builder;
-    private List<Token> tokens;
+    private final List<Token> tokens;
 
     public Parser(DecimalExprBuilder builder) {
         this.builder = builder;
@@ -48,13 +48,15 @@ public class Parser {
                     ast.build();
                 } else if (builder.getVariableNames().contains(identifier)) {
                     ast.addVariable(identifier);
+                } else if (builder.getMacroNames().contains(identifier)) {
+                    ast.addMacro(identifier);
                 } else {
                     i += 1;  // skip next front parenthesis
                     processFunction(identifier, ast, i);
                     functionCallParCounts.push(parCount++);
                 }
             } else if (token.isNumber()) {
-                ast.addNumber((BigDecimal) token.getValue());
+                ast.addNumber((Real) token.getValue());
             } else {
                 throw new ParseTimeException("Unexpected token");
             }
@@ -124,7 +126,7 @@ class AbstractSyntaxTree {
     private BlockStmt element = new BlockStmt();
     private boolean inExpr;
 
-    void addNumber(BigDecimal number) {
+    void addNumber(Real number) {
         if (inner == null) {
             stack.push(new NumberNode(number));
         } else {
@@ -155,6 +157,14 @@ class AbstractSyntaxTree {
             stack.push(new VariableNode(variableName));
         } else {
             inner.addVariable(variableName);
+        }
+    }
+
+    void addMacro(String macroName) {
+        if (inner == null) {
+            stack.push(new MacroNode(macroName));
+        } else {
+            inner.addMacro(macroName);
         }
     }
 
@@ -189,7 +199,7 @@ class AbstractSyntaxTree {
                 List<Node> exprNodes = new ArrayList<>();
                 while (!stack.isEmpty()) {
                     Node node = stack.peek();
-                    if (node instanceof NumberNode || node instanceof VariableNode || node instanceof OperatorNode
+                    if (node instanceof LeafNode || node instanceof OperatorNode
                             || (node instanceof FunctionNode && ((FunctionNode) node).fulfilled())) {
                         exprNodes.add(node);
                         stack.pop();

@@ -1,12 +1,11 @@
 package trashsoftware.decimalExpr;
 
-import trashsoftware.decimalExpr.expression.EvaluateTimeException;
+import trashsoftware.decimalExpr.parser.Node;
+import trashsoftware.decimalExpr.parser.ValuesBundle;
 import trashsoftware.decimalExpr.parser.BlockStmt;
 import trashsoftware.decimalExpr.parser.Parser;
+import trashsoftware.numbers.Real;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,27 +13,37 @@ import java.util.Map;
 public class DecimalExpr {
 
     private final BlockStmt root;
-    private final Map<String, BigDecimal> variables = new HashMap<>();
-    private final MathContext mathContext;
+    private final ValuesBundle valuesBundle;
 
     DecimalExpr(DecimalExprBuilder exprBuilder) {
         root = new Parser(exprBuilder).parse();
-        mathContext = new MathContext(exprBuilder.getPrecision(), RoundingMode.HALF_UP);
+        Map<String, Real> variables = new HashMap<>();
         for (String varName: exprBuilder.getVariableNames()) {
             variables.put(varName, null);
         }
-    }
-
-    public DecimalExpr setVariable(String variable, BigDecimal value) {
-        if (variables.containsKey(variable)) {
-            variables.put(variable, value);
-            return this;
-        } else {
-            throw new EvaluateTimeException(String.format("Variable '%s' is not defined.", variable));
+        Map<String, Node> macros = new HashMap<>();
+        for (String macroName : exprBuilder.getMacroNames()) {
+            macros.put(macroName, null);
         }
+        valuesBundle = new ValuesBundle(variables, macros);
     }
 
-    public BigDecimal evaluate() {
-        return root.eval(variables).round(mathContext);
+    public DecimalExpr setVariable(String variable, Real value) {
+        valuesBundle.putVariable(variable, value);
+        return this;
+    }
+
+    public DecimalExpr setMacro(String macro, String macroContent) {
+        DecimalExprBuilder subBuilder = new DecimalExprBuilder().expression(macroContent);
+        subBuilder.getVariableNames().addAll(valuesBundle.getVariables().keySet());
+        subBuilder.getMacroNames().addAll(valuesBundle.getMacros().keySet());
+        subBuilder.getMacroNames().remove(macro);
+        Parser subParser = new Parser(subBuilder);
+        valuesBundle.putMacro(macro, subParser.parse());
+        return this;
+    }
+
+    public Real evaluate() {
+        return root.eval(valuesBundle);
     }
 }

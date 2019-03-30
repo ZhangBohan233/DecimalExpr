@@ -12,6 +12,7 @@ import java.util.Set;
 public class DecimalExprBuilder {
 
     private final Set<String> variableNames = new HashSet<>();
+    private final Set<String> macroNames = new HashSet<>();
     private final Map<String, Function> functions = new HashMap<>();
     private final Map<String, BinaryOperator> binaryOperatorMap = new HashMap<>();
     private final Map<String, UnaryOperator> unaryOperatorMap = new HashMap<>();
@@ -27,10 +28,14 @@ public class DecimalExprBuilder {
         operator(Operators.MODULO);
         operator(Operators.POWER);
         operator(Operators.NEGATION);
+        operator(Operators.POSITIVE_SIGN);
 
-        function(Functions.E);
-        function(Functions.PI);
         function(Functions.ABS);
+        function(Functions.CEIL);
+        function(Functions.E);
+        function(Functions.FLOOR);
+        function(Functions.PI);
+        function(Functions.SQRT);
     }
 
     /**
@@ -67,6 +72,14 @@ public class DecimalExprBuilder {
         return this;
     }
 
+    public DecimalExprBuilder macro(String macroName) {
+        if (macroNames.contains(macroName)) {
+            throw new ParseTimeException("Variable '" + macroName + "' already defined");
+        }
+        macroNames.add(macroName);
+        return this;
+    }
+
     public DecimalExprBuilder function(Function function) {
         functions.put(function.getName(), function);
         return this;
@@ -94,6 +107,10 @@ public class DecimalExprBuilder {
 
     public Set<String> getVariableNames() {
         return variableNames;
+    }
+
+    public Set<String> getMacroNames() {
+        return macroNames;
     }
 
     public String getExpression() {

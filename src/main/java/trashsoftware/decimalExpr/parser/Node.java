@@ -3,15 +3,14 @@ package trashsoftware.decimalExpr.parser;
 import trashsoftware.decimalExpr.expression.BinaryOperator;
 import trashsoftware.decimalExpr.expression.Function;
 import trashsoftware.decimalExpr.expression.UnaryOperator;
+import trashsoftware.numbers.Real;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class Node {
 
-    public abstract BigDecimal eval(Map<String, BigDecimal> variables);
+    public abstract Real eval(ValuesBundle valuesBundle);
 }
 
 abstract class LeafNode extends Node {
@@ -20,14 +19,14 @@ abstract class LeafNode extends Node {
 
 class NumberNode extends LeafNode {
 
-    private final BigDecimal number;
+    private final Real number;
 
-    NumberNode(BigDecimal number) {
+    NumberNode(Real number) {
         this.number = number;
     }
 
     @Override
-    public BigDecimal eval(Map<String, BigDecimal> variables) {
+    public Real eval(ValuesBundle valuesBundle) {
         return number;
     }
 
@@ -59,8 +58,8 @@ class BinaryOperatorNode extends OperatorNode {
     }
 
     @Override
-    public BigDecimal eval(Map<String, BigDecimal> variables) {
-        return operator.eval(left.eval(variables), right.eval(variables));
+    public Real eval(ValuesBundle valuesBundle) {
+        return operator.eval(left.eval(valuesBundle), right.eval(valuesBundle));
     }
 
     @Override
@@ -84,8 +83,8 @@ class UnaryOperatorNode extends OperatorNode {
     }
 
     @Override
-    public BigDecimal eval(Map<String, BigDecimal> variables) {
-        return operator.eval(operand.eval(variables));
+    public Real eval(ValuesBundle valuesBundle) {
+        return operator.eval(operand.eval(valuesBundle));
     }
 
     @Override
@@ -107,13 +106,12 @@ class VariableNode extends LeafNode {
     private final String variableName;
 
     VariableNode(String variableName) {
-        // TODO: check exist
         this.variableName = variableName;
     }
 
     @Override
-    public BigDecimal eval(Map<String, BigDecimal> variables) {
-        BigDecimal obj = variables.get(variableName);
+    public Real eval(ValuesBundle valuesBundle) {
+        Real obj = valuesBundle.getVariable(variableName);
         if (obj == null) throw new NoSuchVariableException(String.format("Variable '%s' is not set", variableName));
         return obj;
     }
@@ -121,6 +119,25 @@ class VariableNode extends LeafNode {
     @Override
     public String toString() {
         return variableName;
+    }
+}
+
+class MacroNode extends LeafNode {
+    private final String macroName;
+
+    MacroNode(String macroName) {
+        this.macroName = macroName;
+    }
+
+    @Override
+    public Real eval(ValuesBundle valuesBundle) {
+        Node node = valuesBundle.getMacro(macroName);
+        return node.eval(valuesBundle);
+    }
+
+    @Override
+    public String toString() {
+        return macroName;
     }
 }
 
@@ -150,10 +167,10 @@ class FunctionNode extends Node {
     }
 
     @Override
-    public BigDecimal eval(Map<String, BigDecimal> variables) {
-        BigDecimal[] args = new BigDecimal[arguments.size()];
+    public Real eval(ValuesBundle valuesBundle) {
+        Real[] args = new Real[arguments.size()];
         for (int i = 0; i < args.length; i++) {
-            args[i] = arguments.get(i).eval(variables);
+            args[i] = arguments.get(i).eval(valuesBundle);
         }
         return function.eval(args);
     }

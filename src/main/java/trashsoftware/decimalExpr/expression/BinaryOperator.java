@@ -1,5 +1,7 @@
 package trashsoftware.decimalExpr.expression;
 
+import trashsoftware.numbers.Real;
+
 import java.math.BigDecimal;
 
 public abstract class BinaryOperator extends Operator {
@@ -9,5 +11,5 @@ public abstract class BinaryOperator extends Operator {
         this.precedence = precedence;
     }
 
-    public abstract BigDecimal eval(BigDecimal left, BigDecimal right);
+    public abstract Real eval(Real left, Real right);
 }

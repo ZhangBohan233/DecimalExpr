@@ -1,5 +1,7 @@
 package trashsoftware.decimalExpr.expression;
 
+import trashsoftware.numbers.Real;
+
 import java.math.BigDecimal;
 
 @SuppressWarnings("WeakerAccess")
@@ -27,5 +29,5 @@ public abstract class UnaryOperator extends Operator {
         return leftAssociative;
     }
 
-    public abstract BigDecimal eval(BigDecimal number);
+    public abstract Real eval(Real number);
 }

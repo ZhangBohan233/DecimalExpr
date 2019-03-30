@@ -1,21 +1,24 @@
 package trashsoftware.decimalExpr.expression;
 
 import trashsoftware.decimalExpr.util.Util;
+import trashsoftware.numbers.Rational;
+import trashsoftware.numbers.Real;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@SuppressWarnings("WeakerAccess")
 public class Operators {
 
     public final static int PRECEDENCE_ADDITION = 10;
     public final static int PRECEDENCE_SUBTRACTION = 10;
     public final static int PRECEDENCE_NEGATION = 11;
+    public final static int PRECEDENCE_POSITIVE_SIGN = 11;
     public final static int PRECEDENCE_MULTIPLICATION = 20;
     public final static int PRECEDENCE_DIVISION = 20;
     public final static int PRECEDENCE_MODULO = 20;
     public final static int PRECEDENCE_POWER = 30;
 
-    private static String[] POSSIBLE_OPERATORS = {"+", "-", "*", "/", "\\", "%", "^", "$", "#", "@", "!", "&",
+    private final static String[] POSSIBLE_OPERATORS = {"+", "-", "*", "/", "\\", "%", "^", "$", "#", "@", "!", "&",
             "?", "<", ">", "|"};
 
     public static boolean isPossibleOperator(String s) {
@@ -25,53 +28,61 @@ public class Operators {
         return false;
     }
 
-    public static Operator ADDITION = new BinaryOperator("+", PRECEDENCE_ADDITION) {
+    public final static Operator ADDITION = new BinaryOperator("+", PRECEDENCE_ADDITION) {
         @Override
-        public BigDecimal eval(BigDecimal left, BigDecimal right) {
+        public Real eval(Real left, Real right) {
             return left.add(right);
         }
     };
 
-    public static Operator SUBTRACTION = new BinaryOperator("-", PRECEDENCE_SUBTRACTION) {
+    public final static Operator SUBTRACTION = new BinaryOperator("-", PRECEDENCE_SUBTRACTION) {
         @Override
-        public BigDecimal eval(BigDecimal left, BigDecimal right) {
+        public Real eval(Real left, Real right) {
             return left.subtract(right);
         }
     };
 
-    public static Operator MULTIPLICATION = new BinaryOperator("*", PRECEDENCE_MULTIPLICATION) {
+    public final static Operator MULTIPLICATION = new BinaryOperator("*", PRECEDENCE_MULTIPLICATION) {
         @Override
-        public BigDecimal eval(BigDecimal left, BigDecimal right) {
+        public Real eval(Real left, Real right) {
             return left.multiply(right);
         }
     };
 
-    public static Operator DIVISION = new BinaryOperator("/", PRECEDENCE_DIVISION) {
+    public final static Operator DIVISION = new BinaryOperator("/", PRECEDENCE_DIVISION) {
         @Override
-        public BigDecimal eval(BigDecimal left, BigDecimal right) {
-            return left.divide(right, RoundingMode.HALF_UP);
+        public Real eval(Real left, Real right) {
+            return left.divide(right);
         }
     };
 
-    public static Operator MODULO = new BinaryOperator("%", PRECEDENCE_MODULO) {
+    public final static Operator MODULO = new BinaryOperator("%", PRECEDENCE_MODULO) {
         @Override
-        public BigDecimal eval(BigDecimal left, BigDecimal right) {
-            return left.remainder(right);
+        public Real eval(Real left, Real right) {
+            return left.modulo(right);
         }
     };
 
-    public static Operator POWER = new BinaryOperator("^", PRECEDENCE_POWER) {
+    public final static Operator POWER = new BinaryOperator("^", PRECEDENCE_POWER) {
         @Override
-        public BigDecimal eval(BigDecimal left, BigDecimal right) {
-            if (!Util.isInteger(right)) throw new NumberValueException("Non-integer power is not allowed");
-            return left.pow(right.intValue());
+        public Real eval(Real left, Real right) {
+            return left.power(right);
         }
     };
 
-    public static Operator NEGATION = new UnaryOperator("-", PRECEDENCE_NEGATION, false) {
+    public final static Operator NEGATION =
+            new UnaryOperator("-", PRECEDENCE_NEGATION, false) {
         @Override
-        public BigDecimal eval(BigDecimal number) {
+        public Real eval(Real number) {
             return number.negate();
+        }
+    };
+
+    public final static Operator POSITIVE_SIGN =
+            new UnaryOperator("+", PRECEDENCE_POSITIVE_SIGN, false) {
+        @Override
+        public Real eval(Real number) {
+            return number;
         }
     };
 }

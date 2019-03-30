@@ -1,6 +1,7 @@
 package trashsoftware.decimalExpr.parser;
 
-import java.math.BigDecimal;
+import trashsoftware.numbers.Rational;
+import trashsoftware.numbers.Real;
 
 public abstract class Token {
 
@@ -41,14 +42,14 @@ class IdToken extends Token {
 
 class NumberToken extends Token {
 
-    private BigDecimal value;
+    private Real value;
 
     NumberToken(String value) {
-        this.value = new BigDecimal(value);
+        this.value = Rational.parseDecimal(value);
     }
 
     @Override
-    public BigDecimal getValue() {
+    public Real getValue() {
         return value;
     }
 

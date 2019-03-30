@@ -1,5 +1,7 @@
 package trashsoftware.decimalExpr.parser;
 
+import trashsoftware.numbers.Rational;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +11,16 @@ class Tokenizer {
     private final static String ALPHA = "abcdefghijklmnopqrstuvexyzABCDEFGHIJKLMNOPQRSTUVEXYZ";
     private final static String SYMBOLS = "=+-*/%^\\!@#$&<>?`~";
     private final static int[] SELF_CONCAT_TYPES = {0, 1};
-    private final static int[][] CROSS_CONCAT_TYPES = {{1, 0}, {0, 10}, {10, 0}};
+    private final static int[][] CROSS_CONCAT_TYPES = {
+            {1, 0},  // text and number
+            {0, 10},  // number and dot
+            {10, 0},  // dot and number
+            {0, 14},  // number and '{'
+            {14, 0},  // '{' and number
+            {0, 15},  // number and '}'
+            {15, 0},  // '}' and number
+            {10, 14}  // dot and '{'
+    };
 
     private String expression;
     private List<Token> tokens = new ArrayList<>();
@@ -50,7 +61,8 @@ class Tokenizer {
 
     private static boolean isNumber(String s) {
         for (char c : s.toCharArray()) {
-            if (!(isDigit(c) || c == '.')) return false;
+            if (!(isDigit(c) || c == '.' || c == Rational.FRONT_REPEAT_CHAR || c == Rational.BACK_REPEAT_CHAR))
+                return false;
         }
         return true;
     }
@@ -68,6 +80,10 @@ class Tokenizer {
                     return 12;
                 case ',':
                     return 13;
+                case Rational.FRONT_REPEAT_CHAR:
+                    return 14;
+                case Rational.BACK_REPEAT_CHAR:
+                    return 15;
                 default:
                     return -1;
             }
