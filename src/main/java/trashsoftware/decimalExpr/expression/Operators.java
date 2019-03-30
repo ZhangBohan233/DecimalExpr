@@ -1,10 +1,6 @@
 package trashsoftware.decimalExpr.expression;
 
-import trashsoftware.decimalExpr.util.Util;
-import trashsoftware.numbers.Rational;
 import trashsoftware.numbers.Real;
-
-import java.math.RoundingMode;
 
 @SuppressWarnings("WeakerAccess")
 public class Operators {

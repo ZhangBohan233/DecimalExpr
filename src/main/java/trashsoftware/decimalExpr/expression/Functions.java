@@ -1,6 +1,7 @@
 package trashsoftware.decimalExpr.expression;
 
 import trashsoftware.numbers.Irrational;
+import trashsoftware.numbers.Rational;
 import trashsoftware.numbers.Real;
 
 public class Functions {
@@ -22,8 +23,7 @@ public class Functions {
     public final static Function E = new Function("e", 0) {
         @Override
         public Real eval(Real... numbers) {
-            return Irrational.valueOf("2.718281828459045235360287471352662497757247093699959" +
-                    "5749669676277240766303535475945713821785251664274");
+            return Irrational.E;
         }
     };
 
@@ -34,11 +34,17 @@ public class Functions {
         }
     };
 
+    public final static Function LOG = new Function("log", 1, 2) {
+        @Override
+        public Real eval(Real... numbers) {
+            return null;
+        }
+    };
+
     public final static Function PI = new Function("pi", 0) {
         @Override
         public Real eval(Real... numbers) {
-            return Irrational.valueOf("3.14159265358979323846264338327950288419716939937510" +
-                    "5820974944592307816406286208998628034825342117068");
+            return Irrational.PI;
         }
     };
 
@@ -48,4 +54,12 @@ public class Functions {
             return numbers[0].sqrt();
         }
     };
+
+    /* Helper functions */
+    private static Real log2(Rational exp) {
+        if (exp.signum() <= 0) {
+            throw new NumberValueException("Exponent must be positive");
+        }
+        return null;
+    }
 }

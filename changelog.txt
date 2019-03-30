@@ -1,3 +1,11 @@
+##### 0.2.1 #####
+
+* Changed syntax:
+    * DecimalExprBuilder now takes parameter 'expression', while the method 'expression()' is removed.
+* Implemented power functions
+* Optimization:
+    * Rational now takes compulsive simplification during constructing
+
 ##### 0.2 #####
 
 * Implemented a new number system:

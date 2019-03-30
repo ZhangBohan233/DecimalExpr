@@ -70,19 +70,19 @@ class UnitTests {
         Rational a = Rational.fromFraction(3, 2);
         Rational b = Rational.fromFraction(2, 1);
         Real c = a.divide(b);
-        System.out.println(c);
+        assert Rational.fromFraction(3, 4).equals(c);
     }
 
     @Test
     void testFromFiniteDecimal() {
         Rational a = Rational.parseDecimal("0.32");
-        System.out.println(a);
+        assert Rational.fromFraction(8, 25).equals(a);
     }
 
     @Test
     void testFromPointAtEnd() {
         Rational a = Rational.parseDecimal("0.");
-        System.out.println(a);
+        assert Rational.ZERO.equals(a);
     }
 
     @Test
@@ -123,5 +123,11 @@ class UnitTests {
         Complex b = Complex.createComplex(Rational.valueOf(1), Rational.valueOf(2));
         Complex c = a.add(b);
         System.out.println(c);
+    }
+
+    @Test
+    void testRationalNegative() {
+        Rational a = Rational.fromFraction(2, -3);
+        assert Rational.fromFraction(-2, 3).equals(a);
     }
 }

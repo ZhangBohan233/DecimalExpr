@@ -1,10 +1,8 @@
 package trashsoftware.decimalExpr.parser;
 
 import trashsoftware.decimalExpr.expression.EvaluateTimeException;
-import trashsoftware.decimalExpr.parser.Node;
 import trashsoftware.numbers.Real;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ValuesBundle {

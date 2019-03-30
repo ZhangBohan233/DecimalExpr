@@ -17,10 +17,22 @@ public class DecimalExprBuilder {
     private final Map<String, BinaryOperator> binaryOperatorMap = new HashMap<>();
     private final Map<String, UnaryOperator> unaryOperatorMap = new HashMap<>();
 
-    private String expression;
+    private final String expression;
     private int precision = 16;
 
-    public DecimalExprBuilder() {
+    /**
+     * Creates a new instance of {@code DecimalExprBuilder} with the expression {@code String} object to be evaluated.
+     * <p>
+     * The expression is case-sensitive, but not space-sensitive.
+     *
+     * @param expression the expression text
+     */
+    public DecimalExprBuilder(String expression) {
+        this.expression = expression;
+        addBuiltIns();
+    }
+
+    private void addBuiltIns() {
         operator(Operators.ADDITION);
         operator(Operators.SUBTRACTION);
         operator(Operators.MULTIPLICATION);
@@ -36,19 +48,6 @@ public class DecimalExprBuilder {
         function(Functions.FLOOR);
         function(Functions.PI);
         function(Functions.SQRT);
-    }
-
-    /**
-     * Sets up the expression {@code String} object to be evaluated.
-     * <p>
-     * The expression is case-sensitive, but not space-sensitive.
-     *
-     * @param expression the expression text
-     * @return a reference to this object
-     */
-    public DecimalExprBuilder expression(String expression) {
-        this.expression = expression;
-        return this;
     }
 
     /**

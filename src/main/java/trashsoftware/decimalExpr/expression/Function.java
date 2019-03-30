@@ -3,8 +3,6 @@ package trashsoftware.decimalExpr.expression;
 
 import trashsoftware.numbers.Real;
 
-import java.math.BigDecimal;
-
 public abstract class Function {
 
     private final String name;

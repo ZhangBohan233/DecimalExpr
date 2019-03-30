@@ -14,7 +14,16 @@ public class Rational implements Real {
     public final static char FRONT_REPEAT_CHAR = '{';
     public final static char BACK_REPEAT_CHAR = '}';
 
+    /**
+     * The denominator of this rational number.
+     * <p>
+     * This value will always be a positive integer.
+     */
     private final BigInteger denominator;
+
+    /**
+     * The numerator of this rational number.
+     */
     private final BigInteger numerator;
 
     private Rational(BigInteger value) {
@@ -363,26 +372,30 @@ public class Rational implements Real {
         if (numSqrt[1].equals(BigInteger.ZERO) && denomSqrt[1].equals(BigInteger.ZERO)) {  // both are perfect squares
             return new Rational(numSqrt[0], denomSqrt[0]);
         } else {
-            return Irrational.valueOf(toDecimal().sqrt(MathContext.DECIMAL128));
+            return Irrational.valueOf(toDecimal().sqrt(Irrational.DEFAULT_CONTEXT));
         }
     }
 
     @Override
     public Real power(Real val) {
-        if (val.isRational() && ((Rational) val).isInteger()) {
+        if (val.isRational()) {
             Rational p = (Rational) val;
-            Rational pow = Rational.ONE;
-            for (int i = 0; i < p.numerator.abs().longValueExact(); i++) {
-                pow = pow.multiplyRational(this);
-            }
-            if (p.signum() < 0) {
-                return pow.inverse();
+            if (p.isInteger()) {
+                Rational pow = Rational.ONE;
+                for (int i = 0; i < p.numerator.abs().longValueExact(); i++) {
+                    pow = pow.multiplyRational(this);
+                }
+                if (p.signum() < 0) {
+                    return pow.inverse();
+                } else {
+                    return pow;
+                }
             } else {
-                return pow;
+                // TODO: not implemented
+                return null;
             }
         } else {
-            // TODO not implemented yet
-            return null;
+            return Irrational.valueOf(toDecimal()).power(val);
         }
     }
 
@@ -393,7 +406,7 @@ public class Rational implements Real {
 
     @Override
     public BigDecimal toDecimal() {
-        return ratio(MathContext.DECIMAL128);
+        return ratio(Irrational.DEFAULT_CONTEXT);
     }
 
     @Override

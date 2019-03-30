@@ -34,7 +34,7 @@ public class DecimalExpr {
     }
 
     public DecimalExpr setMacro(String macro, String macroContent) {
-        DecimalExprBuilder subBuilder = new DecimalExprBuilder().expression(macroContent);
+        DecimalExprBuilder subBuilder = new DecimalExprBuilder(macroContent);
         subBuilder.getVariableNames().addAll(valuesBundle.getVariables().keySet());
         subBuilder.getMacroNames().addAll(valuesBundle.getMacros().keySet());
         subBuilder.getMacroNames().remove(macro);

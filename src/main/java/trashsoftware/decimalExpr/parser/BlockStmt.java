@@ -16,11 +16,11 @@ public class BlockStmt extends Node {
         return children.get(0).eval(valuesBundle);
     }
 
-    public void addChild(Node node) {
+    void addChild(Node node) {
         children.add(node);
     }
 
-    public List<Node> getChildren() {
+    List<Node> getChildren() {
         return children;
     }
 
