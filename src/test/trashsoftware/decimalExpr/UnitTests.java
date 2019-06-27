@@ -30,7 +30,7 @@ class UnitTests {
         }
     };
 
-    private static Function exp = new Function("exp", 1) {
+    private static Function exp2 = new Function("exp2", 1) {
         @Override
         public Real eval(Real... numbers) {
             return Irrational.E.power(numbers[0]);
@@ -50,6 +50,13 @@ class UnitTests {
                 .build()
                 .setVariable("x", Rational.valueOf(5));
         assert expr.evaluate().equals(Rational.valueOf(5));
+    }
+
+    @Test
+    void testParenthesis() {
+        DecimalExpr expr = new DecimalExprBuilder("4*3+2*(1+2*(1+1))-1")
+                .build();
+        assert expr.evaluate().equals(Rational.valueOf(21));
     }
 
     @Test
@@ -96,13 +103,13 @@ class UnitTests {
 
     @Test
     void testExp() {
-        DecimalExpr expr = new DecimalExprBuilder("exp(x)")
+        DecimalExpr expr = new DecimalExprBuilder("exp2(x)")
                 .variable("x")
-                .function(exp)
+                .function(exp2)
                 .build()
                 .setVariable("x", Rational.valueOf(2));
         Real result = expr.evaluate();
-        System.out.println(result);
+        assert result.lessThan(Rational.fromFraction(15, 2)) && result.greaterThan(Rational.valueOf(7));
     }
 
     @Test
@@ -141,5 +148,20 @@ class UnitTests {
         assert Rational.valueOf(15).equals(result);
         expr.setMacro("m", "1");
         assert Rational.valueOf(10).equals(expr.evaluate());
+    }
+
+    @Test
+    void testDoubleEqualLong() {
+        double d = Math.log(0);
+        long l = 1;
+//        System.out.println(d);
+//        System.out.println(d == l);
+    }
+
+    @Test
+    void testLogs() {
+//        DecimalExpr expr = new DecimalExprBuilder("ln(e())").build();
+//        Real res = expr.evaluate();
+//        System.out.println(res);
     }
 }

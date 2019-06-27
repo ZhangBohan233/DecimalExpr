@@ -148,7 +148,7 @@ public class Rational implements Real {
     }
 
     public BigDecimal ratio(MathContext roundingMode) {
-        return new BigDecimal(numerator).divide(new BigDecimal(denominator), MathContext.UNLIMITED);
+        return new BigDecimal(numerator).divide(new BigDecimal(denominator), roundingMode);
     }
 
     @Override

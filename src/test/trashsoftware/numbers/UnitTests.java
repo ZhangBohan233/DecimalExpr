@@ -45,8 +45,8 @@ class UnitTests {
 
     @Test
     void testDoubleRemainder() {
-        double a = 10.0/3.0;
-        double b = 3.0/2.0;
+        double a = 10.0 / 3.0;
+        double b = 3.0 / 2.0;
         double c = a % b;
         System.out.println(c);
     }
@@ -129,5 +129,75 @@ class UnitTests {
     void testRationalNegative() {
         Rational a = Rational.fromFraction(2, -3);
         assert Rational.fromFraction(-2, 3).equals(a);
+    }
+
+    @Test
+    void testMatrixCreation() {
+        Matrix matrix = Matrix.IDENTITY_3X3;
+        System.out.println(matrix);
+    }
+
+    @Test
+    void testMatrixMultiplication() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 0, 2},
+                {-1, 3, 1}
+        });
+        Matrix b = Matrix.integerMatrix(new long[][]{
+                {3, 1},
+                {2, 1},
+                {1, 0}
+        });
+        Matrix c = a.multiply(b);
+        System.out.println(c);
+    }
+
+    @Test
+    void testIJMinor() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 2, 3, 4, 5, 6},
+                {2, 3, 4, 5, 6, 7},
+                {3, 4, 5, 6, 7, 8},
+                {4, 5, 6, 7, 8, 9},
+                {5, 6, 7, 8, 9, 0},
+                {6, 7, 8, 9, 0, 1}
+        });
+        Matrix b = a.minor(1, 0);
+        System.out.println(b);
+    }
+
+    @Test
+    void testDet2X2() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 2},
+                {2, 1}
+        });
+        Real det = a.determinant();
+        System.out.println(det);
+    }
+
+    @Test
+    void testDet3X3() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 0, 2},
+                {0, 1, 3},
+                {2, 3, 1}
+        });
+        Real det = a.determinant();
+        System.out.println(det);
+    }
+
+    @Test
+    void testDet6X6() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 2, 3, 4, 5, 6},
+                {2, 3, 4, 5, 6, 7},
+                {3, 4, 5, 6, 7, 8},
+                {4, 5, 6, 7, 8, 9},
+                {5, 6, 7, 8, 9, 0},
+                {6, 7, 8, 9, 0, 1}
+        });
+        Real det = a.determinant();
+        System.out.println(det);
     }
 }

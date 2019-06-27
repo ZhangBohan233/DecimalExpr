@@ -75,9 +75,25 @@ public interface Real extends Comparable<Real> {
 
     boolean isRational();
 
+    Real copy();
+
     @Override
     default int compareTo(Real o) {
         Real result = this.subtract(o);
         return result.signum();
+    }
+
+    default boolean greaterThan(Real other) {
+        Real subtract = this.subtract(other);
+        return subtract.signum() > 0;
+    }
+
+    default boolean lessThan(Real other) {
+        Real subtract = this.subtract(other);
+        return subtract.signum() < 0;
+    }
+
+    default double doubleValue() {
+        return toDecimal().doubleValue();
     }
 }

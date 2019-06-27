@@ -25,7 +25,7 @@ public class Parser {
 
     public BlockStmt parse() {
         AbstractSyntaxTree ast = new AbstractSyntaxTree();
-        int extraPrecedence = 0;
+//        int extraPrecedence = 0;
         int parCount = 0;
         Stack<Integer> functionCallParCounts = new Stack<>();
         for (int i = 0; i < tokens.size(); i++) {
@@ -33,16 +33,18 @@ public class Parser {
             if (token.isIdentifier()) {
                 String identifier = (String) token.getValue();
                 if (Operators.isPossibleOperator(identifier)) {
-                    processOperator(identifier, ast, i, extraPrecedence);
+                    processOperator(identifier, ast, i);
                 } else if (identifier.equals("(")) {
                     parCount++;
-                    extraPrecedence += 1000;
+                    ast.addParenthesis();
+//                    extraPrecedence += 1000;
                 } else if (identifier.equals(")")) {
                     if (peekEquals(functionCallParCounts, --parCount)) {
                         functionCallParCounts.pop();
                         ast.buildFunction();
                     } else {
-                        extraPrecedence -= 1000;
+                        ast.buildParenthesis();
+//                        extraPrecedence -= 1000;
                     }
                 } else if (identifier.equals(",")) {
                     ast.build();
@@ -69,20 +71,20 @@ public class Parser {
         return !stack.isEmpty() && stack.peek() == value;
     }
 
-    private void processOperator(String op, AbstractSyntaxTree ast, int index, int extraPrecedence) {
+    private void processOperator(String op, AbstractSyntaxTree ast, int index) {
         UnaryOperator unaryOperator = builder.getUnaryOperatorMap().get(op);
         if (unaryOperator != null) {
             // token at the side of the operator
             int adjTokenIndex = unaryOperator.isLeftAssociative() ?
                     index + 1 : index - 1;
             if (isUnary(adjTokenIndex, unaryOperator.isLeftAssociative())) {
-                ast.addUnaryOperator(unaryOperator, extraPrecedence);
+                ast.addUnaryOperator(unaryOperator);
                 return;
             }
         }
         BinaryOperator binaryOperator = builder.getBinaryOperatorMap().get(op);
         if (binaryOperator != null) {
-            ast.addBinaryOperator(binaryOperator, extraPrecedence);
+            ast.addBinaryOperator(binaryOperator);
             return;
         }
         throw new ParseTimeException("Unsolved operator");
@@ -134,21 +136,21 @@ class AbstractSyntaxTree {
         }
     }
 
-    void addUnaryOperator(UnaryOperator operator, int extraPrecedence) {
+    void addUnaryOperator(UnaryOperator operator) {
         if (inner == null) {
-            stack.push(new UnaryOperatorNode(operator, extraPrecedence));
+            stack.push(new UnaryOperatorNode(operator));
             inExpr = true;
         } else {
-            inner.addUnaryOperator(operator, extraPrecedence);
+            inner.addUnaryOperator(operator);
         }
     }
 
-    void addBinaryOperator(BinaryOperator operator, int extraPrecedence) {
+    void addBinaryOperator(BinaryOperator operator) {
         if (inner == null) {
-            stack.push(new BinaryOperatorNode(operator, extraPrecedence));
+            stack.push(new BinaryOperatorNode(operator));
             inExpr = true;
         } else {
-            inner.addBinaryOperator(operator, extraPrecedence);
+            inner.addBinaryOperator(operator);
         }
     }
 
@@ -174,6 +176,27 @@ class AbstractSyntaxTree {
             inner = new AbstractSyntaxTree();
         } else {
             inner.addFunction(function);
+        }
+    }
+
+    void addParenthesis() {
+        if (inner == null) {
+            inner = new AbstractSyntaxTree();
+        } else {
+            inner.addParenthesis();
+        }
+    }
+
+    void buildParenthesis() {
+        if (inner.inner == null) {
+            inner.build();
+            BlockStmt innerRoot = inner.getRoot();
+            if (innerRoot.getChildren().isEmpty())
+                throw new ParseTimeException("Empty parenthesis");
+            stack.push(innerRoot.getChildren().get(0));
+            inner = null;
+        } else {
+            inner.buildParenthesis();
         }
     }
 

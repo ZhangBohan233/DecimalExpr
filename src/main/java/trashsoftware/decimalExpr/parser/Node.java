@@ -38,10 +38,7 @@ class NumberNode extends LeafNode {
 
 
 abstract class OperatorNode extends Node {
-    final int extraPrecedence;
-
-    OperatorNode(int extraPrecedence) {
-        this.extraPrecedence = extraPrecedence;
+    OperatorNode() {
     }
 
     abstract int getPrecedence();
@@ -52,8 +49,8 @@ class BinaryOperatorNode extends OperatorNode {
     Node left;
     Node right;
 
-    BinaryOperatorNode(BinaryOperator operator, int extraPrecedence) {
-        super(extraPrecedence);
+    BinaryOperatorNode(BinaryOperator operator) {
+        super();
         this.operator = operator;
     }
 
@@ -64,7 +61,7 @@ class BinaryOperatorNode extends OperatorNode {
 
     @Override
     int getPrecedence() {
-        return operator.getPrecedence() + extraPrecedence;
+        return operator.getPrecedence();
     }
 
     @Override
@@ -77,8 +74,8 @@ class UnaryOperatorNode extends OperatorNode {
     final UnaryOperator operator;
     Node operand;
 
-    UnaryOperatorNode(UnaryOperator operator, int extraPrecedence) {
-        super(extraPrecedence);
+    UnaryOperatorNode(UnaryOperator operator) {
+        super();
         this.operator = operator;
     }
 
@@ -89,7 +86,7 @@ class UnaryOperatorNode extends OperatorNode {
 
     @Override
     int getPrecedence() {
-        return operator.getPrecedence() + extraPrecedence;
+        return operator.getPrecedence();
     }
 
     @Override

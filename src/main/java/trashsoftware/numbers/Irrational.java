@@ -118,4 +118,9 @@ public class Irrational implements Real {
     public Real floor() {
         return Rational.valueOf(value.setScale(0, RoundingMode.FLOOR).toBigIntegerExact());
     }
+
+    @Override
+    public Real copy() {
+        return Irrational.valueOf(value);
+    }
 }

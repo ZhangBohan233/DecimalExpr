@@ -44,8 +44,10 @@ public class DecimalExprBuilder {
 
         function(Functions.ABS);
         function(Functions.CEIL);
-        function(Functions.E);
+        function(Functions.EXP);
         function(Functions.FLOOR);
+        function(Functions.LN);
+        function(Functions.LOG);
         function(Functions.PI);
         function(Functions.SQRT);
     }

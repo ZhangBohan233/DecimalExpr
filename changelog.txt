@@ -1,3 +1,18 @@
+##### 0.2.2 #####
+2019/6/27
+
+* Added module:
+    * Matrix (experiment)
+* New functions:
+    * log(a, b)
+    * ln(x)
+    * exp(x)
+* Update for Real:
+    * Added more comparing functions
+* Optimization:
+    * Number exceptions now extends NumberException
+    * Parenthesis now parses as block statement
+
 ##### 0.2.1 #####
 
 * Changed syntax:

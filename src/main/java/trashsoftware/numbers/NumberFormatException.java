@@ -1,6 +1,6 @@
 package trashsoftware.numbers;
 
-public class NumberFormatException extends ArithmeticException {
+public class NumberFormatException extends NumberException {
 
     NumberFormatException() {
 

@@ -37,6 +37,16 @@ public abstract class Function {
 
     public abstract Real eval(Real... numbers);
 
+    ArgumentNumberException createArgumentNumberException(int actualNumArgument) {
+        if (leastNumArgument == mostNumArgument) {
+            return ArgumentNumberException.getByNameExpectActual(
+                    name, leastNumArgument, actualNumArgument);
+        } else {
+            return ArgumentNumberException.getByNameExpectActual(
+                    name, leastNumArgument, mostNumArgument, actualNumArgument);
+        }
+    }
+
     @Override
     public int hashCode() {
         return super.hashCode();
