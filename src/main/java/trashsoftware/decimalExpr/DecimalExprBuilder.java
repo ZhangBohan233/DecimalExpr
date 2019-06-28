@@ -62,6 +62,8 @@ public class DecimalExprBuilder {
         function(Functions.ATAN);
 
         function(LoopFunctions.SUMMATION);
+        function(LoopFunctions.DERIVATIVE);
+        function(LoopFunctions.INTEGRAL);
     }
 
     /**

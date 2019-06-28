@@ -49,6 +49,16 @@ public interface Real extends Comparable<Real> {
      */
     Real sqrt();
 
+    /**
+     * Returns the {@code power}'s root of this.
+     * <p>
+     * {@code power} must be positive integer.
+     *
+     * @param power the power
+     * @return the {@code power}'s root of this
+     */
+    Real root(Rational power);
+
     Real negate();
 
     /**

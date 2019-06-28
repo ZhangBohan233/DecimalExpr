@@ -3,6 +3,7 @@ package trashsoftware.numbers;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 class UnitTests {
 
@@ -129,6 +130,39 @@ class UnitTests {
     void testRationalNegative() {
         Rational a = Rational.fromFraction(2, -3);
         assert Rational.fromFraction(-2, 3).equals(a);
+    }
+
+    @Test
+    void testIrrationalRoot() {
+        Real r = Irrational.valueOf(2.3213154352346).root(Rational.valueOf(2));
+        System.out.println(r);
+    }
+
+    @Test
+    void testRootAndRemainder() {
+        BigInteger[] pres = Rational.nThRootAndRemainder(BigInteger.valueOf(216), BigInteger.valueOf(3));
+        assert pres[0].intValue() == 6 && pres[1].intValue() == 0;
+    }
+
+    @Test
+    void testFractionPower() {
+        Rational r = Rational.valueOf(3);
+        Real p = r.power(Rational.fromFraction(-2, 3));
+        System.out.println(p);
+    }
+
+    @Test
+    void testRationalRootInteger() {
+        Rational r = Rational.valueOf(34);
+        Real root = r.root(Rational.valueOf(3));
+        System.out.println(root);
+    }
+
+    @Test
+    void testRationalRootNonInteger() {
+        Rational r = Rational.fromFraction(8, 27);
+        Real root = r.root(Rational.valueOf(3));
+        System.out.println(root);
     }
 
     @Test

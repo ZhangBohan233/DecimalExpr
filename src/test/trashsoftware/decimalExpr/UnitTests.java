@@ -46,8 +46,8 @@ class UnitTests {
             Real current = numbers[0];
             Real sum = Rational.ONE;
             while (hasNext(current, stop)) {
-                valuesBundle.putVariable(invariant, current);
-                Real loopResult = node.eval(valuesBundle);
+                getValuesBundle().putVariable(invariant, current);
+                Real loopResult = node.eval(getValuesBundle());
                 sum = sum.multiply(loopResult);
                 current = nextStep(current);
             }
@@ -251,5 +251,23 @@ class UnitTests {
             desired *= (i * 2);
         }
         assert res.equals(Rational.valueOf(desired + 4));
+    }
+
+    @Test
+    void testDerivative() {
+        DecimalExpr expr = new DecimalExprBuilder("ddx(x^2, x, 2)")
+                .variable("x")
+                .build();
+        Real res = expr.evaluate();
+        assert res.equals(Rational.valueOf(4));
+    }
+
+    @Test
+    void testIntegral() {
+        DecimalExpr expr = new DecimalExprBuilder("integral(x+1, x, -1, 1)")
+                .variable("x")
+                .build();
+        Real res = expr.evaluate();
+        assert res.equals(Rational.valueOf(2));
     }
 }

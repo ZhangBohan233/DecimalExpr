@@ -1,3 +1,11 @@
+##### 0.2.4 #####
+2019/6/28
+
+* New loop functions:
+    * derivative "ddx"
+    * integral "integral"
+* Implemented "root" and "pow" of Real's
+
 ##### 0.2.3 #####
 2019/6/27
 

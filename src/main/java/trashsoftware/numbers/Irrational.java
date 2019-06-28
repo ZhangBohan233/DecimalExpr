@@ -74,14 +74,26 @@ public class Irrational implements Real {
             Rational p = (Rational) val;
             return Irrational.valueOf(value.pow(p.toDecimal().intValueExact(), DEFAULT_CONTEXT));
         } else {
-            System.err.println("Irrational powers a non-integer number does not guarantee precision");
+//            System.err.println("Irrational powers a non-integer number does not guarantee precision");
             return Irrational.valueOf(Math.pow(value.doubleValue(), val.toDecimal().doubleValue()));
         }
     }
 
     @Override
     public Real sqrt() {
+        if (signum() < 0) {
+            throw new ImaginaryInRealException();
+        }
         return Irrational.valueOf(value.sqrt(DEFAULT_CONTEXT));
+    }
+
+    @Override
+    public Real root(Rational power) {
+        if (power.isInteger() && power.signum() > 0) {
+            return Irrational.valueOf(Math.pow(doubleValue(), power.inverse().doubleValue()));
+        } else {
+            throw new NumberException("Power must be positive integer");
+        }
     }
 
     @Override

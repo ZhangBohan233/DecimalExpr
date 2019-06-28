@@ -7,7 +7,7 @@ import trashsoftware.numbers.Real;
 
 public abstract class LoopFunction extends AbstractFunction {
 
-    protected ValuesBundle valuesBundle;
+    private ValuesBundle valuesBundle;
 
     protected LoopFunction(String name, int paramCount) {
         super(name, paramCount);
@@ -17,7 +17,11 @@ public abstract class LoopFunction extends AbstractFunction {
         this.valuesBundle = valuesBundle;
     }
 
-    public abstract Real eval(Node node, String invariant, Real... numbers);
+    protected ValuesBundle getValuesBundle() {
+        return valuesBundle;
+    }
+
+    public abstract Real eval(Node expr, String invariant, Real... numbers);
 
     protected abstract Real nextStep(Real current);
 

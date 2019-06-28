@@ -3,6 +3,7 @@ package trashsoftware.numbers;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,6 +124,7 @@ public class Rational implements Real {
      * @param rational the {@code String} of number
      * @return the {@code Rational} instance
      */
+    @SuppressWarnings("WeakerAccess")
     public static Rational parseRational(String rational) {
         int lineIndex = rational.indexOf('/');
         if (lineIndex == -1) throw new NumberFormatException("Not a rational number");
@@ -131,10 +133,12 @@ public class Rational implements Real {
         return new Rational(num, denom);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static Rational valueOf(BigInteger value) {
         return new Rational(value);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static Rational fromFraction(BigInteger numerator, BigInteger denominator) {
         return new Rational(numerator, denominator);
     }
@@ -147,7 +151,7 @@ public class Rational implements Real {
         return numerator;
     }
 
-    public BigDecimal ratio(MathContext roundingMode) {
+    private BigDecimal ratio(MathContext roundingMode) {
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), roundingMode);
     }
 
@@ -170,6 +174,7 @@ public class Rational implements Real {
         return denominator.equals(BigInteger.ONE) ? numerator.toString() : numerator + "/" + denominator;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public String toStringDecimal() {
         if (numerator.equals(BigInteger.ZERO)) return "0";
 
@@ -213,6 +218,7 @@ public class Rational implements Real {
      * @param y another number
      * @return the greatest common divisor
      */
+    @SuppressWarnings("WeakerAccess")
     public static BigInteger gcd(BigInteger x, BigInteger y) {
         BigInteger q, b;
         if (x.abs().compareTo(y.abs()) < 0) {  // a < b
@@ -240,6 +246,7 @@ public class Rational implements Real {
      * @param b another number
      * @return the least common multiplier
      */
+    @SuppressWarnings("WeakerAccess")
     public static BigInteger lcm(BigInteger a, BigInteger b) {
         return a.multiply(b).divide(gcd(a, b));
     }
@@ -311,6 +318,7 @@ public class Rational implements Real {
         return new Rational(rem, denom);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public Rational inverse() {
         return new Rational(denominator, numerator);
     }
@@ -367,6 +375,9 @@ public class Rational implements Real {
 
     @Override
     public Real sqrt() {
+        if (signum() < 0) {
+            throw new ImaginaryInRealException();
+        }
         BigInteger[] numSqrt = numerator.sqrtAndRemainder();
         BigInteger[] denomSqrt = denominator.sqrtAndRemainder();
         if (numSqrt[1].equals(BigInteger.ZERO) && denomSqrt[1].equals(BigInteger.ZERO)) {  // both are perfect squares
@@ -374,6 +385,55 @@ public class Rational implements Real {
         } else {
             return Irrational.valueOf(toDecimal().sqrt(Irrational.DEFAULT_CONTEXT));
         }
+    }
+
+    @Override
+    public Real root(Rational power) {
+        if (power.isInteger() && power.signum() > 0) {
+            // TODO: Uncertainty
+            if (isInteger()) {
+                BigInteger[] rootAndRemainder = nThRootAndRemainder(numerator, power.numerator);
+                if (rootAndRemainder[1].equals(BigInteger.ZERO)) {
+                    return Rational.valueOf(rootAndRemainder[0]);
+                }
+            } else {
+                BigInteger[] denomRootRemainder = nThRootAndRemainder(denominator, power.numerator);
+                BigInteger[] numRootRemainder = nThRootAndRemainder(numerator, power.numerator);
+                if (denomRootRemainder[1].equals(BigInteger.ZERO) && numRootRemainder[1].equals(BigInteger.ZERO)) {
+                    return Rational.fromFraction(numRootRemainder[0], denomRootRemainder[0]);
+                }
+            }
+            return Irrational.valueOf(Math.pow(doubleValue(), power.inverse().doubleValue()));
+        } else {
+            throw new NumberException("Power must be positive integer");
+        }
+    }
+
+    static BigInteger[] nThRootAndRemainder(BigInteger number, BigInteger n) {
+        int intN = n.intValue();
+        BigInteger root = BigInteger.ONE;
+        BigInteger pow;
+        while ((pow = root.pow(intN)).compareTo(number) < 0) {
+            root = root.multiply(BigInteger.TWO);
+        }
+        if (pow.equals(number)) {
+            return new BigInteger[]{root, BigInteger.ZERO};
+        }
+
+        BigInteger left = root.divide(BigInteger.TWO);
+        BigInteger right = root;
+        while (right.compareTo(left.add(BigInteger.ONE)) > 0) {
+            BigInteger mid = right.subtract(left).divide(BigInteger.TWO).add(left);
+            int cmp = mid.pow(intN).compareTo(number);
+            if (cmp > 0) {
+                right = mid;
+            } else if (cmp < 0) {
+                left = mid;
+            } else {
+                return new BigInteger[]{mid, BigInteger.ZERO};
+            }
+        }
+        return new BigInteger[]{left, number.subtract(left.pow(intN))};
     }
 
     @Override
@@ -391,8 +451,8 @@ public class Rational implements Real {
                     return pow;
                 }
             } else {
-                // TODO: not implemented
-                return null;
+                Real inner = power(Rational.valueOf(p.numerator));
+                return inner.root(Rational.valueOf(p.denominator));
             }
         } else {
             return Irrational.valueOf(toDecimal()).power(val);
