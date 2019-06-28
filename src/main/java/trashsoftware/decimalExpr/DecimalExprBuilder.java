@@ -13,7 +13,7 @@ public class DecimalExprBuilder {
 
     private final Set<String> variableNames = new HashSet<>();
     private final Set<String> macroNames = new HashSet<>();
-    private final Map<String, Function> functions = new HashMap<>();
+    private final Map<String, AbstractFunction> functions = new HashMap<>();
     private final Map<String, BinaryOperator> binaryOperatorMap = new HashMap<>();
     private final Map<String, UnaryOperator> unaryOperatorMap = new HashMap<>();
 
@@ -50,6 +50,18 @@ public class DecimalExprBuilder {
         function(Functions.LOG);
         function(Functions.PI);
         function(Functions.SQRT);
+
+        function(Functions.COS);
+        function(Functions.SIN);
+        function(Functions.TAN);
+        function(Functions.COSH);
+        function(Functions.SINH);
+        function(Functions.TANH);
+        function(Functions.ACOS);
+        function(Functions.ASIN);
+        function(Functions.ATAN);
+
+        function(LoopFunctions.SUMMATION);
     }
 
     /**
@@ -81,7 +93,7 @@ public class DecimalExprBuilder {
         return this;
     }
 
-    public DecimalExprBuilder function(Function function) {
+    public DecimalExprBuilder function(AbstractFunction function) {
         functions.put(function.getName(), function);
         return this;
     }
@@ -118,7 +130,7 @@ public class DecimalExprBuilder {
         return expression;
     }
 
-    public Map<String, Function> getFunctions() {
+    public Map<String, AbstractFunction> getFunctions() {
         return functions;
     }
 

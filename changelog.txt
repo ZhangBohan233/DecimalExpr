@@ -1,3 +1,12 @@
+##### 0.2.3 #####
+2019/6/27
+
+* Added new function types:
+    * Loop functions
+* New functions:
+    * 9 trigonometric functions
+    * Sum
+
 ##### 0.2.2 #####
 2019/6/27
 

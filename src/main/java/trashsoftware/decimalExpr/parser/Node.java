@@ -1,8 +1,6 @@
 package trashsoftware.decimalExpr.parser;
 
-import trashsoftware.decimalExpr.expression.BinaryOperator;
-import trashsoftware.decimalExpr.expression.Function;
-import trashsoftware.decimalExpr.expression.UnaryOperator;
+import trashsoftware.decimalExpr.expression.*;
 import trashsoftware.numbers.Real;
 
 import java.util.ArrayList;
@@ -113,6 +111,10 @@ class VariableNode extends LeafNode {
         return obj;
     }
 
+    String getVariableName() {
+        return variableName;
+    }
+
     @Override
     public String toString() {
         return variableName;
@@ -138,12 +140,12 @@ class MacroNode extends LeafNode {
     }
 }
 
-class FunctionNode extends Node {
-    private final Function function;
-    private final List<Node> arguments = new ArrayList<>();
+abstract class FunctionBaseNode extends Node {
+    final AbstractFunction function;
+    final List<Node> arguments = new ArrayList<>();
 
-    FunctionNode(Function function) {
-        this.function = function;
+    FunctionBaseNode(AbstractFunction functionBase) {
+        this.function = functionBase;
     }
 
     void addArgument(Node node) {
@@ -162,6 +164,13 @@ class FunctionNode extends Node {
     boolean fulfilled() {
         return arguments.size() >= function.getLeastNumArgument();
     }
+}
+
+class FunctionNode extends FunctionBaseNode {
+
+    FunctionNode(Function function) {
+        super(function);
+    }
 
     @Override
     public Real eval(ValuesBundle valuesBundle) {
@@ -169,7 +178,33 @@ class FunctionNode extends Node {
         for (int i = 0; i < args.length; i++) {
             args[i] = arguments.get(i).eval(valuesBundle);
         }
-        return function.eval(args);
+        return ((Function) function).eval(args);
+    }
+
+    @Override
+    public String toString() {
+        return function.getName() + "(" + arguments + ")";
+    }
+}
+
+
+class LoopFunctionNode extends FunctionBaseNode {
+
+    LoopFunctionNode(LoopFunction loopFunction) {
+        super(loopFunction);
+    }
+
+    @Override
+    public Real eval(ValuesBundle valuesBundle) {
+        Node block = arguments.get(0);
+        VariableNode invariant = (VariableNode) arguments.get(1);
+        Real[] args = new Real[arguments.size() - 2];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = arguments.get(i + 2).eval(valuesBundle);
+        }
+        LoopFunction loopFunction = (LoopFunction) function;
+        loopFunction.setValuesBundle(valuesBundle);
+        return loopFunction.eval(block, invariant.getVariableName(), args);
     }
 
     @Override

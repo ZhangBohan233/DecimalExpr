@@ -1,10 +1,7 @@
 package trashsoftware.decimalExpr.parser;
 
 import trashsoftware.decimalExpr.DecimalExprBuilder;
-import trashsoftware.decimalExpr.expression.BinaryOperator;
-import trashsoftware.decimalExpr.expression.Function;
-import trashsoftware.decimalExpr.expression.Operators;
-import trashsoftware.decimalExpr.expression.UnaryOperator;
+import trashsoftware.decimalExpr.expression.*;
 import trashsoftware.numbers.Real;
 
 import java.util.ArrayList;
@@ -25,7 +22,6 @@ public class Parser {
 
     public BlockStmt parse() {
         AbstractSyntaxTree ast = new AbstractSyntaxTree();
-//        int extraPrecedence = 0;
         int parCount = 0;
         Stack<Integer> functionCallParCounts = new Stack<>();
         for (int i = 0; i < tokens.size(); i++) {
@@ -37,14 +33,12 @@ public class Parser {
                 } else if (identifier.equals("(")) {
                     parCount++;
                     ast.addParenthesis();
-//                    extraPrecedence += 1000;
                 } else if (identifier.equals(")")) {
                     if (peekEquals(functionCallParCounts, --parCount)) {
                         functionCallParCounts.pop();
                         ast.buildFunction();
                     } else {
                         ast.buildParenthesis();
-//                        extraPrecedence -= 1000;
                     }
                 } else if (identifier.equals(",")) {
                     ast.build();
@@ -110,13 +104,19 @@ public class Parser {
     }
 
     private void processFunction(String identifier, AbstractSyntaxTree ast, int index) {
-        Function function = builder.getFunctions().get(identifier);
+        AbstractFunction function = builder.getFunctions().get(identifier);
         if (function == null) {
             throw new ParseTimeException(String.format("Unsolved function '%s'", identifier));
         } else {
             Token parToken = tokens.get(index);
             assert parToken.isIdentifier() && "(".equals(parToken.getValue());
-            ast.addFunction(function);
+            if (function instanceof Function) {
+                ast.addFunction((Function) function);
+            } else if (function instanceof LoopFunction) {
+                ast.addLoopFunction((LoopFunction) function);
+            } else {
+                throw new ParseTimeException(String.format("Unsolved function '%s'", identifier));
+            }
         }
     }
 }
@@ -179,6 +179,15 @@ class AbstractSyntaxTree {
         }
     }
 
+    void addLoopFunction(LoopFunction function) {
+        if (inner == null) {
+            stack.push(new LoopFunctionNode(function));
+            inner = new AbstractSyntaxTree();
+        } else {
+            inner.addLoopFunction(function);
+        }
+    }
+
     void addParenthesis() {
         if (inner == null) {
             inner = new AbstractSyntaxTree();
@@ -205,7 +214,7 @@ class AbstractSyntaxTree {
             inner.build();
             BlockStmt innerRoot = inner.getRoot();
             inner = null;
-            FunctionNode functionNode = (FunctionNode) stack.peek();
+            FunctionBaseNode functionNode = (FunctionBaseNode) stack.peek();
             functionNode.throwErrorIfArgumentTooFew(innerRoot.getChildren().size());
             for (Node node : innerRoot.getChildren()) {
                 functionNode.addArgument(node);
@@ -223,7 +232,7 @@ class AbstractSyntaxTree {
                 while (!stack.isEmpty()) {
                     Node node = stack.peek();
                     if (node instanceof LeafNode || node instanceof OperatorNode
-                            || (node instanceof FunctionNode && ((FunctionNode) node).fulfilled())) {
+                            || (node instanceof FunctionBaseNode && ((FunctionBaseNode) node).fulfilled())) {
                         exprNodes.add(node);
                         stack.pop();
                     } else {

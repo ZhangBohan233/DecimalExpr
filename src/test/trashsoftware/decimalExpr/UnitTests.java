@@ -2,8 +2,10 @@ package trashsoftware.decimalExpr;
 
 import org.junit.jupiter.api.Test;
 import trashsoftware.decimalExpr.expression.Function;
+import trashsoftware.decimalExpr.expression.LoopFunction;
 import trashsoftware.decimalExpr.expression.Operator;
 import trashsoftware.decimalExpr.expression.UnaryOperator;
+import trashsoftware.decimalExpr.parser.Node;
 import trashsoftware.numbers.Irrational;
 import trashsoftware.numbers.Rational;
 import trashsoftware.numbers.Real;
@@ -34,6 +36,32 @@ class UnitTests {
         @Override
         public Real eval(Real... numbers) {
             return Irrational.E.power(numbers[0]);
+        }
+    };
+
+    private static LoopFunction bigPi = new LoopFunction("bigPi", 4) {
+        @Override
+        public Real eval(Node node, String invariant, Real... numbers) {
+            Real stop = numbers[1];
+            Real current = numbers[0];
+            Real sum = Rational.ONE;
+            while (hasNext(current, stop)) {
+                valuesBundle.putVariable(invariant, current);
+                Real loopResult = node.eval(valuesBundle);
+                sum = sum.multiply(loopResult);
+                current = nextStep(current);
+            }
+            return sum;
+        }
+
+        @Override
+        protected Real nextStep(Real current) {
+            return current.add(Rational.valueOf(1));
+        }
+
+        @Override
+        protected boolean hasNext(Real current, Real stopValue) {
+            return !current.greaterThan(stopValue);
         }
     };
 
@@ -151,17 +179,77 @@ class UnitTests {
     }
 
     @Test
-    void testDoubleEqualLong() {
-        double d = Math.log(0);
-        long l = 1;
-//        System.out.println(d);
-//        System.out.println(d == l);
-    }
-
-    @Test
     void testLogs() {
 //        DecimalExpr expr = new DecimalExprBuilder("ln(e())").build();
 //        Real res = expr.evaluate();
 //        System.out.println(res);
+    }
+
+    @Test
+    void testCosRational() {
+        DecimalExpr expr = new DecimalExprBuilder("cos(pi()*2/3)").build();
+        Real res = expr.evaluate();
+        assert res.equals(Rational.fromFraction(-1, 2));
+    }
+
+    @Test
+    void testCosIrrational() {
+        DecimalExpr expr = new DecimalExprBuilder("cos(1)").build();
+        Real res = expr.evaluate();
+        assert !res.isRational();
+    }
+
+    @Test
+    void testSummation() {
+        DecimalExpr expr = new DecimalExprBuilder("1+sum(i*2, i, 0, 10)+3")
+                .variable("i")
+                .build();
+        Real res = expr.evaluate();
+        assert res.equals(Rational.valueOf(114));
+    }
+
+    @Test
+    void testSummationWithVariable() {
+        DecimalExpr expr = new DecimalExprBuilder("sum(i*2, i, x-y, x)")
+                .variable("x")
+                .variable("y")
+                .variable("i")
+                .build()
+                .setVariable("x", Rational.valueOf(5))
+                .setVariable("y", Rational.valueOf(2));
+        Real res = expr.evaluate();
+        assert res.equals(Rational.valueOf(24));
+    }
+
+    @Test
+    void testNestedSummation() {
+        DecimalExpr expr = new DecimalExprBuilder("sum(sum(j+1, j, 0, i), i, 0, 10)")
+                .variable("i")
+                .variable("j")
+                .build();
+        Real res = expr.evaluate();
+        int sum = 0;
+        for (int i = 0; i <= 10; i++) {
+            int subSum = 0;
+            for (int j = 0; j <= i; j++) {
+                subSum += (j + 1);
+            }
+            sum += subSum;
+        }
+        assert res.equals(Rational.valueOf(sum));
+    }
+
+    @Test
+    void testCustomLoopFunction() {
+        DecimalExpr expr = new DecimalExprBuilder("1+bigPi(i*2, i, 1, 4)+3")
+                .variable("i")
+                .function(bigPi)
+                .build();
+        Real res = expr.evaluate();
+        int desired = 1;
+        for (int i = 1; i <= 4; i++) {
+            desired *= (i * 2);
+        }
+        assert res.equals(Rational.valueOf(desired + 4));
     }
 }

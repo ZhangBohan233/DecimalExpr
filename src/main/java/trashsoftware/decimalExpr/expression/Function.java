@@ -3,49 +3,17 @@ package trashsoftware.decimalExpr.expression;
 
 import trashsoftware.numbers.Real;
 
-public abstract class Function {
+public abstract class Function extends AbstractFunction {
 
-    private final String name;
-    private final int leastNumArgument;
-    private final int mostNumArgument;
-
-    @SuppressWarnings("WeakerAccess")
-    public Function(String name, int numArgument) {
-        this.name = name;
-        this.leastNumArgument = numArgument;
-        this.mostNumArgument = numArgument;
+    protected Function(String name, int numArgument) {
+        super(name, numArgument);
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public Function(String name, int leastNumArgument, int mostNumArgument) {
-        this.name = name;
-        this.leastNumArgument = leastNumArgument;
-        this.mostNumArgument = mostNumArgument;
-    }
-
-    public int getLeastNumArgument() {
-        return leastNumArgument;
-    }
-
-    public int getMostNumArgument() {
-        return mostNumArgument;
-    }
-
-    public String getName() {
-        return name;
+    protected Function(String name, int leastNumArgument, int mostNumArgument) {
+        super(name, leastNumArgument, mostNumArgument);
     }
 
     public abstract Real eval(Real... numbers);
-
-    ArgumentNumberException createArgumentNumberException(int actualNumArgument) {
-        if (leastNumArgument == mostNumArgument) {
-            return ArgumentNumberException.getByNameExpectActual(
-                    name, leastNumArgument, actualNumArgument);
-        } else {
-            return ArgumentNumberException.getByNameExpectActual(
-                    name, leastNumArgument, mostNumArgument, actualNumArgument);
-        }
-    }
 
     @Override
     public int hashCode() {

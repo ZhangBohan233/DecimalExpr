@@ -1,5 +1,6 @@
 package trashsoftware.decimalExpr.expression;
 
+import trashsoftware.decimalExpr.util.Util;
 import trashsoftware.numbers.InfinityException;
 import trashsoftware.numbers.Irrational;
 import trashsoftware.numbers.Rational;
@@ -79,7 +80,82 @@ public class Functions {
         }
     };
 
+    /**
+     * The function of cosine.
+     *
+     * This function does not guarantee accuracy
+     */
     public final static Function COS = new Function("cos", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.cos(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function SIN = new Function("sin", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.sin(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function TAN = new Function("tan", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.tan(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function COSH = new Function("cosh", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.cosh(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function SINH = new Function("sinh", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.sinh(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function TANH = new Function("tanh", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.tanh(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function ACOS = new Function("acos", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.acos(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function ASIN = new Function("asin", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.asin(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function ATAN = new Function("atan", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return Util.trigonometryResultToReal(Math.atan(numbers[0].doubleValue()));
+        }
+    };
+
+    public final static Function RADIANS = new Function("rad", 1) {
+        @Override
+        public Real eval(Real... numbers) {
+            return null;
+        }
+    };
+
+    public final static Function DEGREES = new Function("deg", 1) {
         @Override
         public Real eval(Real... numbers) {
             return null;
