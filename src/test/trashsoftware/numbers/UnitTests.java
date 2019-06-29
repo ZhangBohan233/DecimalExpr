@@ -1,5 +1,7 @@
 package trashsoftware.numbers;
 
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -233,5 +235,145 @@ class UnitTests {
         });
         Real det = a.determinant();
         System.out.println(det);
+    }
+
+    @Test
+    void testSquareREF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, 1, -1},
+                {-3, -1, 2},
+                {-2, 1, 2}
+        });
+        a.toRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testNotSquareREF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, 1, -1, 8},
+                {-3, -1, 2, -11},
+                {-2, 1, 2, -3}
+        });
+        a.toRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testRREF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, 1, -1},
+                {-3, -1, 2},
+                {-2, 1, 2}
+        });
+        a.toReducedRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testNotSquareRREF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, 1, -1, 8},
+                {-3, -1, 2, -11},
+                {-2, 1, 2, -3}
+        });
+        a.toReducedRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testRowSwap() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {0, 3, 1},
+                {-3, 0, 2},
+                {-2, 1, 2},
+                {1, 2, 3}
+        });
+        a.swapRows(1, 2);
+        System.out.println(a);
+    }
+
+    @Test
+    void test4x3REF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {0, 0, 1},
+                {-3, 0, 2},
+                {-2, 1, 2},
+                {1, 2, 3}
+        });
+        a.toRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void test4x3RREF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {0, 0, 1},
+                {-3, 0, 2},
+                {-2, 1, 2},
+                {1, 2, 3}
+        });
+        a.toReducedRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testDependentRREF() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 1, 2},
+                {2, 2, 4},
+                {3, 3, 6}
+        });
+        a.toReducedRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testVectorAugment() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, 1, -1},
+                {-3, -1, 2},
+                {-2, 1, 2}
+        });
+        Real[] v = new Real[]{Rational.valueOf(8), Rational.valueOf(-11), Rational.valueOf(-3)};
+        Matrix b = a.augment(v);
+        System.out.println(b);
+        b.toReducedRowEchelonForm();
+        System.out.println(b);
+    }
+
+    @Test
+    void testMatrixAugment() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, -1, 0},
+                {-1, 2, -1},
+                {0, -1, 2}
+        });
+        Matrix b = Matrix.IDENTITY_3X3;
+        Matrix c = a.augment(b);
+        System.out.println(c);
+        c.toReducedRowEchelonForm();
+        System.out.println(c);
+    }
+
+    @Test
+    void testInverse() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, -1, 0},
+                {-1, 2, -1},
+                {0, -1, 2}
+        });
+        Matrix b = a.inverse();
+        System.out.println(b);
+    }
+
+    @Test()
+    void testNotInvertible() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, -1, 0},
+                {-1, 2, -1},
+                {0, 0, 0}
+        });
+        Assertions.assertThrows(IncompatibleMatrixException.class, a::inverse);
     }
 }

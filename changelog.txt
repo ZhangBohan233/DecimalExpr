@@ -1,3 +1,9 @@
+##### 0.2.5 #####
+2019/6/28
+
+* Updated matrix system:
+    * Implemented row reduction and inverse matrix
+
 ##### 0.2.4 #####
 2019/6/28
 

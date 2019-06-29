@@ -54,6 +54,14 @@ public class Matrix {
         return integerMatrix(matrix);
     }
 
+    public static Matrix identityMatrix(int dimension) {
+        long[][] matrix = new long[dimension][dimension];
+        for (int i = 0; i < dimension; i++) {
+            matrix[i][i] = 1;
+        }
+        return integerMatrix(matrix);
+    }
+
     public Real get(int row, int col) {
         return rows[row][col];
     }
@@ -62,8 +70,86 @@ public class Matrix {
         rows[row][col] = val;
     }
 
-    public Matrix toRREF() {
-        return null;
+    public void toRowEchelonForm() {
+        int min = Math.min(rowsCount(), columnsCount());
+        int theoPivotPos = 0;
+        for (int i = 0; i < min; i++) {  // pivot row
+            int pivotPos = rowPivotPosition(i);
+            if (theoPivotPos == columnsCount()) break;  // all remains are zero
+            if (pivotPos != theoPivotPos) {
+                int pivotRow = findRowWithPivot(i + 1, theoPivotPos);
+                if (pivotRow == -1) {
+                    theoPivotPos++;
+                } else {
+                    swapRows(i, pivotRow);
+                }
+                i--;
+                continue;
+            }
+            Real pivot = get(i, pivotPos);
+            for (int j = i + 1; j < rowsCount(); j++) {  // rows under current pivot row
+                Real rowFirst = get(j, pivotPos);
+                Real ratio = rowFirst.divide(pivot).negate();
+                for (int c = i; c < columnsCount(); c++) {
+                    Real pivotRowMultiple = get(i, c).multiply(ratio);
+                    Real result = pivotRowMultiple.add(get(j, c));
+                    set(j, c, result);
+                }
+            }
+        }
+    }
+
+    public void toReducedRowEchelonForm() {
+        toRowEchelonForm();
+        for (int i = rowsCount() - 1; i >= 0; i--) {
+            int pivotPos = rowPivotPosition(i);
+            if (pivotPos == -1) continue;
+            Real selfRatio = Rational.ONE.divide(get(i, pivotPos));
+            for (int j = pivotPos; j < columnsCount(); j++) {
+                set(i, j, get(i, j).multiply(selfRatio));  // set the line pivot to 1
+            }
+            Real pivot = get(i, pivotPos);
+            for (int r = i - 1; r >= 0; r--) {  // reduce all rows above the current row
+                Real ratio = get(r, pivotPos).divide(pivot).negate();
+                for (int c = 0; c < columnsCount(); c++) {
+                    set(r, c, get(i, c).multiply(ratio).add(get(r, c)));
+                }
+            }
+        }
+    }
+
+    public Matrix augment(Matrix matrix) {
+        Real[][] newMatrix = new Real[rowsCount()][];
+        for (int i = 0; i < rowsCount(); i++) {
+            Real[] dest = new Real[columnsCount() + matrix.columnsCount()];
+            System.arraycopy(rows[i], 0, dest, 0, columnsCount());
+            System.arraycopy(matrix.rows[i], 0, dest, columnsCount(), matrix.columnsCount());
+            newMatrix[i] = dest;
+        }
+        return Matrix.createInstance(newMatrix);
+    }
+
+    public Matrix augment(Real[] vector) {
+        Real[][] matrix = new Real[rowsCount()][];
+        for (int i = 0; i < rowsCount(); i++) {
+            Real[] dest = new Real[columnsCount() + 1];
+            System.arraycopy(rows[i], 0, dest, 0, columnsCount());
+            dest[columnsCount()] = vector[i];
+            matrix[i] = dest;
+        }
+        return Matrix.createInstance(matrix);
+    }
+
+    public Matrix inverse() {
+        if (!isSquareMatrix()) {
+            throw new IncompatibleMatrixException("Only square matrix has inverse");
+        }
+        Matrix b = augment(identityMatrix(rowsCount()));
+        b.toReducedRowEchelonForm();
+        if (!b.subMatrix(0, columnsCount()).isIdentityMatrix()) {
+            throw new IncompatibleMatrixException("Matrix is not invertible");
+        }
+        return b.subMatrix(columnsCount(), columnsCount() << 1);
     }
 
     public Matrix add(Matrix matrix) {
@@ -168,6 +254,24 @@ public class Matrix {
         return innerDeterminant(this);
     }
 
+    public boolean isSquareMatrix() {
+        return columnsCount() == rowsCount();
+    }
+
+    public boolean isIdentityMatrix() {
+        if (!isSquareMatrix()) return false;
+        for (int r = 0; r < rowsCount(); r++) {
+            for (int c = 0; c < columnsCount(); c++) {
+                if (r == c) {
+                    if (!get(r, c).equals(Rational.ONE)) return false;
+                } else {
+                    if (!get(r, c).equals(Rational.ZERO)) return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private static Real innerDeterminant(Matrix matrix) {
         if (matrix.rowsCount() == 1) {
             return matrix.rows[0][0];
@@ -183,6 +287,41 @@ public class Matrix {
             }
             return result;
         }
+    }
+
+    private int rowPivotPosition(int row) {
+        for (int i = 0; i < columnsCount(); i++) {
+            if (!rows[row][i].equals(Rational.ZERO)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int findRowWithPivot(int beginRow, int pivotPos) {
+        for (int i = beginRow; i < rowsCount(); i++) {
+            if (!rows[i][pivotPos].equals(Rational.ZERO)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void swapRows(int r1, int r2) {
+        Real[] row1 = rows[r1];
+        rows[r1] = rows[r2];
+        rows[r2] = row1;
+    }
+
+    private Matrix subMatrix(int beginCol, int endCol) {
+        Real[][] matrix = new Real[rowsCount()][];
+        int width = endCol - beginCol;
+        for (int r = 0; r < rowsCount(); r++) {
+            Real[] column = new Real[width];
+            System.arraycopy(rows[r], beginCol, column, 0, width);
+            matrix[r] = column;
+        }
+        return createInstance(matrix);
     }
 
     @Override
