@@ -124,8 +124,8 @@ public class Parser {
 class AbstractSyntaxTree {
 
     private AbstractSyntaxTree inner;
-    private Stack<Node> stack = new Stack<>();
-    private BlockStmt element = new BlockStmt();
+    private final Stack<Node> stack = new Stack<>();
+    private final BlockStmt element = new BlockStmt();
     private boolean inExpr;
 
     void addNumber(Real number) {

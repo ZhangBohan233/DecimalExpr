@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @see Irrational
  * @since 0.2
  */
-public interface Real extends Comparable<Real> {
+public interface Real extends Comparable<Real>, FieldAble {
 
     /**
      * Returns a new instance of a subclass of {@code Real}, consisting of the sum of this instance and

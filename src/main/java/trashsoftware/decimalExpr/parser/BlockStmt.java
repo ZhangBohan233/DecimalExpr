@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class BlockStmt extends Node {
 
-    private List<Node> children = new ArrayList<>();
+    private final List<Node> children = new ArrayList<>();
 
     @Override
     public Real eval(ValuesBundle valuesBundle) {

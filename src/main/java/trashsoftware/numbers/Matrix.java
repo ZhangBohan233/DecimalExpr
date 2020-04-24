@@ -1,7 +1,8 @@
 package trashsoftware.numbers;
 
-import java.util.Arrays;
+import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 public class Matrix {
 
     public static final Matrix ZERO_2X2 = integerMatrix(new long[][]{
@@ -49,6 +50,30 @@ public class Matrix {
         return new Matrix(matrix);
     }
 
+    public static Matrix integerMatrix(int[][] rows) {
+        Real[][] matrix = new Real[rows.length][];
+        for (int i = 0; i < rows.length; i++) {
+            int[] iRow = rows[i];
+            matrix[i] = new Real[iRow.length];
+            for (int j = 0; j < iRow.length; j++) {
+                Rational r = Rational.valueOf(iRow[j]);
+                matrix[i][j] = r;
+            }
+        }
+        return new Matrix(matrix);
+    }
+
+    public static Matrix ofVectors(Vector... columns) {
+        int rowCount = columns[0].dimension();
+        Real[][] matrix = new Real[rowCount][columns.length];
+        for (int i = 0; i < rowCount; i++) {
+            for (int j = 0; j < columns.length; j++) {
+                matrix[i][j] = columns[j].toArray()[i];
+            }
+        }
+        return new Matrix(matrix);
+    }
+
     public static Matrix zeroMatrix(int rowsCount, int colsCount) {
         long[][] matrix = new long[rowsCount][colsCount];
         return integerMatrix(matrix);
@@ -62,6 +87,16 @@ public class Matrix {
         return integerMatrix(matrix);
     }
 
+    public static Matrix oneMatrix(int dimension) {
+        long[][] matrix = new long[dimension][dimension];
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                matrix[i][j] = 1;
+            }
+        }
+        return integerMatrix(matrix);
+    }
+
     public Real get(int row, int col) {
         return rows[row][col];
     }
@@ -70,9 +105,15 @@ public class Matrix {
         rows[row][col] = val;
     }
 
-    public void toRowEchelonForm() {
+    /**
+     * Reduce this matrix to Row-Echelon-Form.
+     *
+     * @return the scaling factor
+     */
+    public Real toRowEchelonForm() {
         int min = Math.min(rowsCount(), columnsCount());
         int theoPivotPos = 0;
+        Real detFactor = Rational.ONE;
         for (int i = 0; i < min; i++) {  // pivot row
             int pivotPos = rowPivotPosition(i);
             if (theoPivotPos == columnsCount()) break;  // all remains are zero
@@ -82,6 +123,7 @@ public class Matrix {
                     theoPivotPos++;
                 } else {
                     swapRows(i, pivotRow);
+                    detFactor = detFactor.negate();
                 }
                 i--;
                 continue;
@@ -97,6 +139,7 @@ public class Matrix {
                 }
             }
         }
+        return detFactor;
     }
 
     public void toReducedRowEchelonForm() {
@@ -118,6 +161,38 @@ public class Matrix {
         }
     }
 
+    public Real det() {
+        if (!isSquareMatrix()) {
+            throw new IncompatibleMatrixException("Only square matrix has determinant");
+        }
+        Matrix b = copy();
+        Real factor = b.toRowEchelonForm();
+        Real refDet = b.diagonal();
+        return refDet.multiply(factor);
+    }
+
+    public Real diagonal() {
+        if (!isSquareMatrix()) {
+            throw new IncompatibleMatrixException("Only square matrix has main diagonal");
+        }
+        Real result = Rational.ONE;
+        for (int i = 0; i < rowsCount(); i++) {
+            result = result.multiply(get(i, i));
+        }
+        return result;
+    }
+
+    public Real trace() {
+        if (!isSquareMatrix()) {
+            throw new IncompatibleMatrixException("Only square matrix has main diagonal");
+        }
+        Real result = Rational.ZERO;
+        for (int i = 0; i < rowsCount(); i++) {
+            result = result.add(get(i, i));
+        }
+        return result;
+    }
+
     public Matrix augment(Matrix matrix) {
         Real[][] newMatrix = new Real[rowsCount()][];
         for (int i = 0; i < rowsCount(); i++) {
@@ -127,6 +202,10 @@ public class Matrix {
             newMatrix[i] = dest;
         }
         return Matrix.createInstance(newMatrix);
+    }
+
+    public Matrix augment(Vector vector) {
+        return augment(vector.toArray());
     }
 
     public Matrix augment(Real[] vector) {
@@ -163,6 +242,11 @@ public class Matrix {
         return result;
     }
 
+    public Matrix subtract(Matrix matrix) {
+        Matrix neg = matrix.multiply(Rational.valueOf(-1));
+        return add(neg);
+    }
+
     public Matrix multiply(Matrix matrix) {
         if (columnsCount() != matrix.rowsCount()) {
             throw new IncompatibleMatrixException("A*B must satisfies that 'columns count of A = rows count of B'");
@@ -184,6 +268,23 @@ public class Matrix {
             matrix.rows[i] = multiplyRow(i, scalar);
         }
         return matrix;
+    }
+
+    public Vector multiply(Vector vector) {
+        Real[] v = vector.toArray();
+        if (v.length != columnsCount()) {
+            throw new IncompatibleMatrixException("A*x must satisfies that 'columns count of A = dimension of x'");
+        }
+        Real[] result = new Real[rowsCount()];
+        for (int i = 0; i < rows.length; i++) {
+            Real rowRes = Rational.ZERO;
+
+            for (int j = 0; j < v.length; j++) {
+                rowRes = rowRes.add(get(i, j).multiply(v[j]));
+            }
+            result[i] = rowRes;
+        }
+        return Vector.createInstance(result);
     }
 
     private Real[] multiplyRow(int rowIndex, Real scalar) {
@@ -247,6 +348,7 @@ public class Matrix {
         return Matrix.createInstance(m);
     }
 
+    @Deprecated
     public Real determinant() {
         if (rowsCount() != columnsCount()) {
             throw new IncompatibleMatrixException("Only square matrix has determinant");
@@ -270,6 +372,130 @@ public class Matrix {
             }
         }
         return true;
+    }
+
+    public boolean isZeroMatrix() {
+        for (int r = 0; r < rowsCount(); r++) {
+            for (int c = 0; c < columnsCount(); c++) {
+                if (!get(r, c).equals(Rational.ZERO)) return false;
+            }
+        }
+        return true;
+    }
+
+    public Matrix power(int n) {
+        if (n <= 0) {
+            throw new IncompatibleMatrixException("Matrix power must be positive integer");
+        }
+        Matrix p = copy();
+        for (int i = 1; i < n; i++) {
+            p = p.multiply(this);
+        }
+        return p;
+    }
+
+    public Matrix transpose() {
+        Real[][] matrix = new Real[columnsCount()][rowsCount()];
+        for (int r = 0; r < rowsCount(); r++) {
+            for (int c = 0; c < columnsCount(); c++) {
+                matrix[c][r] = get(r, c);
+            }
+        }
+        return createInstance(matrix);
+    }
+
+    public int[] dimension() {
+        return new int[]{rowsCount(), columnsCount()};
+    }
+
+    /**
+     * Returns the nilpotent index k of this matrix A such that A^k = 0.
+     * <p>
+     * If this matrix is not nilpotent, returns -1.
+     *
+     * @return the nilpotent index k of this matrix A such that A^k = 0
+     */
+    public int nilpotentIndex() {
+        Matrix p = copy();
+        for (int i = 0; i < columnsCount() * rowsCount(); i++) {
+            if (p.isZeroMatrix()) return i;
+            p = p.multiply(this);
+        }
+        return -1;
+    }
+
+    public int rank() {
+        Matrix b = copy();
+        b.toRowEchelonForm();
+        return b.numOfPivot();
+    }
+
+    public Vector column(int columnIndex) {
+        Real[] v = new Real[rowsCount()];
+        for (int r = 0; r < rowsCount(); r++) {
+            v[r] = rows[r][columnIndex];
+        }
+        return Vector.createInstance(v);
+    }
+
+    public Matrix[] PLUDecomposition() {
+        if (!isSquareMatrix()) {
+            throw new IncompatibleMatrixException("Only square matrix can be factorized");
+        }
+        Matrix upper = copy();
+        int min = rowsCount();
+        int theoPivotPos = 0;
+        List<Matrix> es = new ArrayList<>();
+        Matrix p = identityMatrix(rowsCount());
+        for (int i = 0; i < min; i++) {  // pivot row
+            int pivotPos = upper.rowPivotPosition(i);
+            if (theoPivotPos == columnsCount()) break;  // all remains are zero
+            if (pivotPos != theoPivotPos) {
+                int pivotRow = upper.findRowWithPivot(i + 1, theoPivotPos);
+                if (pivotRow == -1) {
+                    theoPivotPos++;
+                } else {
+                    upper.swapRows(i, pivotRow);
+                    p.swapRows(i, pivotRow);
+                }
+                i--;
+                continue;
+            }
+            Real pivot = upper.get(i, pivotPos);
+            for (int j = i + 1; j < rowsCount(); j++) {  // rows under current pivot row
+                Real rowFirst = upper.get(j, pivotPos);
+                Real ratio = rowFirst.divide(pivot).negate();
+                Matrix e = identityMatrix(rowsCount());
+                for (int c = i; c < columnsCount(); c++) {
+                    Real pivotRowMultiple = upper.get(i, c).multiply(ratio);
+                    Real result = pivotRowMultiple.add(upper.get(j, c));
+                    upper.set(j, c, result);
+
+                    Real eRowMultiple = e.get(i, c).multiply(ratio);
+                    e.set(j, c, eRowMultiple.add(e.get(j, c)));
+                }
+                es.add(e);
+            }
+        }
+        Matrix lower = identityMatrix(rowsCount());
+        for (Matrix e : es) {
+            Matrix inverse = e.inverse();
+            lower = lower.multiply(inverse);
+        }
+        return new Matrix[]{p.inverse(), lower, upper};
+    }
+
+    private int numOfPivot() {
+        int pivots = 0;
+        for (int r = 0; r < rowsCount(); r++) {
+            for (int c = r; c < columnsCount(); c++) {
+                if (!get(r, c).equals(Rational.ZERO)) {
+                    pivots++;
+                    break;
+                }
+            }
+        }
+        return pivots;
     }
 
     private static Real innerDeterminant(Matrix matrix) {

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 class UnitTests {
 
@@ -95,6 +97,20 @@ class UnitTests {
     }
 
     @Test
+    void testFieldExtension() {
+        Radical sqrt2 = Radical.createRadical(2, 2);
+
+        class RationalExtendSqrt extends Field<Rational, Radical> {
+            public RationalExtendSqrt(Rational rational, Rational b, Radical extension) {
+                super(rational, b, extension);
+            }
+        }
+
+        RationalExtendSqrt res2 = new RationalExtendSqrt(Rational.valueOf(3), Rational.valueOf(4), sqrt2);
+        System.out.println(res2);
+    }
+
+    @Test
     void testFromRepeatDecimalMultipleDigitComplicated() {
         Rational a = Rational.parseDecimal("0.{23}");
         System.out.println(a);
@@ -126,6 +142,13 @@ class UnitTests {
         Complex b = Complex.createComplex(Rational.valueOf(1), Rational.valueOf(2));
         Complex c = a.add(b);
         System.out.println(c);
+    }
+
+    @Test
+    void testComplexModulus() {
+        Complex a = Complex.createComplex(1, 1);
+        Real m = a.modulus();
+        assert m.equals(Rational.valueOf(2).sqrt());
     }
 
     @Test
@@ -235,6 +258,17 @@ class UnitTests {
         });
         Real det = a.determinant();
         System.out.println(det);
+    }
+
+    @Test
+    void testSquareInverse() {
+        Matrix m = Matrix.createInstance(new Rational[][]{
+                {Rational.valueOf(26), Rational.parseDecimal("59.56"), Rational.parseDecimal("1628.4")},
+                {Rational.parseDecimal("59.56"), Rational.parseDecimal("133.43"), Rational.parseDecimal("3449.65")},
+                {Rational.parseDecimal("1628.4"), Rational.parseDecimal("3449.65"), Rational.parseDecimal("95487.38")}
+        });
+        Matrix mInv = m.inverse();
+        System.out.println(mInv);
     }
 
     @Test
@@ -375,5 +409,123 @@ class UnitTests {
                 {0, 0, 0}
         });
         Assertions.assertThrows(IncompatibleMatrixException.class, a::inverse);
+    }
+
+    @Test
+    void test2x2Determinant2() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 2},
+                {2, 1}
+        });
+        Real det = a.det();
+        System.out.println(det);
+    }
+
+    @Test
+    void test4x4Determinant2() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 0, 2, -1},
+                {3, 0, 0, 5},
+                {2, 1, 4, -3},
+                {1, 0, 5, 0}
+        });
+        Real det = a.det();
+        System.out.println(det);
+    }
+
+    @Test
+    void testRank() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {2, -1, 0},
+                {-4, 2, 0},
+                {0, 0, 0}
+        });
+        int r = a.rank();
+        System.out.println(r);
+    }
+
+    @Test
+    void testPerformanceDet1vsDet2() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 0, 2, -1, 6, 0, 1, 0},
+                {3, 0, 0, 5, 7, 0, 0, 0},
+                {2, 1, 4, -3, 8, 4, 1, 0},
+                {1, 0, 5, 0, 9, 7, 1, -1},
+                {2, 3, 0, 4, 1, -3, 0, 0},
+                {3, 0, 3, 0, 0, 0, 1, 1},
+                {-1, 1, 0, 2, 0, 3, 1, -1},
+                {1, 0, 3, 1, 0, -1, 2, 0}
+        });
+        long t1 = System.currentTimeMillis();
+        Real det1 = a.determinant();
+        long t2 = System.currentTimeMillis();
+        Real det2 = a.det();
+        long t3 = System.currentTimeMillis();
+        assert det1.equals(det2);
+        System.out.println(det2);
+        System.out.println(t2 - t1);
+        System.out.println(t3 - t2);
+    }
+
+    @Test
+    void testMatrixPower() {
+        Matrix a = Matrix.integerMatrix(new int[][]{
+                {1, 3, 3, 1},
+                {0, 2, 2, 0},
+                {1, 0, 0, 0},
+                {0, 0, 0, 1}
+        });
+        System.out.println(a.rank());
+        Matrix b = a.power(3);
+        System.out.println(b);
+        Matrix c = a.copy();
+        c.toRowEchelonForm();
+        Matrix d = c.power(5);
+        System.out.println(d);
+    }
+
+    @Test
+    void testVector() {
+        Vector v = Vector.integerVector(1, 2, 1);
+        System.out.println(v.norm());
+    }
+
+    @Test
+    void testPLU() {
+        Matrix m = Matrix.integerMatrix(new int[][]{
+                {9, 6, 0},
+                {6, 5, 4},
+                {3, 4, 10}
+        });
+        Matrix[] plu = m.PLUDecomposition();
+        System.out.println(Arrays.toString(plu));
+        assert m.equals(plu[0].multiply(plu[1]).multiply(plu[2]));
+    }
+
+    @Test
+    void testPLUWithSwap() {
+        Matrix m = Matrix.integerMatrix(new int[][]{
+                {0, 5, 6},
+                {1, 2, 9},
+                {3, 4, 0}
+        });
+        Matrix b = m.copy();
+        b.toRowEchelonForm();
+        System.out.println(b);
+        Matrix[] plu = m.PLUDecomposition();
+        System.out.println(Arrays.toString(plu));
+        assert m.equals(plu[0].multiply(plu[1]).multiply(plu[2]));
+    }
+
+    @Test
+    void testTranspose() {
+        Matrix a = Matrix.integerMatrix(new int[][]{
+                {1, 2, 3},
+                {1, 3, 4},
+                {0, 3, 3},
+                {2, 1, 0}
+        });
+        Matrix b = a.transpose();
+        System.out.println(b);
     }
 }

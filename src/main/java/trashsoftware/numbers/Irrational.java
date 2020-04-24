@@ -43,14 +43,28 @@ public class Irrational implements Real {
         return value.toString();
     }
 
+    public boolean equals(Object other) {
+        return other instanceof Irrational && value.equals(((Irrational) other).value);
+    }
+
     @Override
     public Real add(Real val) {
-        return Irrational.valueOf(value.add(val.toDecimal()));
+        BigDecimal res = value.add(val.toDecimal());
+        if (res.equals(BigDecimal.ZERO)) {
+            return Rational.ZERO;
+        } else {
+            return Irrational.valueOf(res);
+        }
     }
 
     @Override
     public Real subtract(Real val) {
-        return Irrational.valueOf(value.subtract(val.toDecimal()));
+        BigDecimal res = value.subtract(val.toDecimal());
+        if (res.equals(BigDecimal.ZERO)) {
+            return Rational.ZERO;
+        } else {
+            return Irrational.valueOf(res);
+        }
     }
 
     @Override
@@ -72,9 +86,12 @@ public class Irrational implements Real {
     public Real power(Real val) {
         if (val.isRational() && ((Rational) val).isInteger()) {
             Rational p = (Rational) val;
-            return Irrational.valueOf(value.pow(p.toDecimal().intValueExact(), DEFAULT_CONTEXT));
+            if (p.equals(Rational.ZERO)) {
+                return Rational.ONE;
+            } else {
+                return Irrational.valueOf(value.pow(p.toDecimal().intValueExact(), DEFAULT_CONTEXT));
+            }
         } else {
-//            System.err.println("Irrational powers a non-integer number does not guarantee precision");
             return Irrational.valueOf(Math.pow(value.doubleValue(), val.toDecimal().doubleValue()));
         }
     }

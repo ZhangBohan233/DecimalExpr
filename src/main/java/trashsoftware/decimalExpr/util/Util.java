@@ -35,4 +35,8 @@ public class Util {
             return Irrational.valueOf(doubleResult);
         }
     }
+
+    public static Real tryExtractRational() {
+        return null;
+    }
 }

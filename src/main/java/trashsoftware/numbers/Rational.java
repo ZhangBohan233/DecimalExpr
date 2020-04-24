@@ -3,14 +3,14 @@ package trashsoftware.numbers;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Rational implements Real {
+public class Rational implements Real, FieldAble {
 
     public final static Rational ZERO = valueOf(0);
     public final static Rational ONE = valueOf(1);
+    public final static Rational TWO = valueOf(2);
 
     public final static char FRONT_REPEAT_CHAR = '{';
     public final static char BACK_REPEAT_CHAR = '}';
@@ -26,6 +26,11 @@ public class Rational implements Real {
      * The numerator of this rational number.
      */
     private final BigInteger numerator;
+
+    protected Rational(Rational value) {
+        numerator = value.numerator;
+        denominator = value.denominator;
+    }
 
     private Rational(BigInteger value) {
         numerator = value;
@@ -133,7 +138,6 @@ public class Rational implements Real {
         return new Rational(num, denom);
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static Rational valueOf(BigInteger value) {
         return new Rational(value);
     }
@@ -167,6 +171,8 @@ public class Rational implements Real {
 
     @Override
     public String toString() {
+//        return toDecimal().toString();
+//        return toStringDecimal();
         return denominator.equals(BigInteger.ONE) ? numerator.toString() : numerator + "/" + denominator;
     }
 

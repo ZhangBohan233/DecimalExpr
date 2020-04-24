@@ -3,14 +3,12 @@ package trashsoftware.numbers;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class Complex {
+public class Complex extends Field<Real, Imaginary> {
 
-    private final Real real;
-    private final Real imaginary;
+    public static final Complex ZERO = Complex.fromReal(Rational.ZERO);
 
     private Complex(Real real, Real imaginary) {
-        this.real = real;
-        this.imaginary = imaginary;
+        super(real, imaginary, Imaginary.I);
     }
 
     public static Complex fromReal(Real realPart) {
@@ -19,6 +17,10 @@ public class Complex {
 
     public static Complex createComplex(Real realPart, Real imaginaryPart) {
         return new Complex(realPart, imaginaryPart);
+    }
+
+    public static Complex createComplex(long realPart, long imaginaryPart) {
+        return new Complex(Rational.valueOf(realPart), Rational.valueOf(imaginaryPart));
     }
 
     public static Complex createRational(long value) {
@@ -37,50 +39,68 @@ public class Complex {
         return fromReal(Irrational.valueOf(value));
     }
 
-    public boolean isReal() {
-        return imaginary.equals(Rational.ZERO);
+    public boolean getA() {
+        return b.equals(Rational.ZERO);
     }
 
     public Real getReal() {
-        return real;
+        return a;
     }
 
-    public Real getImaginary() {
-        return imaginary;
+    public Real getB() {
+        return b;
+    }
+
+    public Complex conjugate() {
+        return Complex.createComplex(a, b.negate());
     }
 
     public Complex add(Complex other) {
-        return new Complex(real.add(other.real), imaginary.add(other.imaginary));
+        return new Complex(a.add(other.a), b.add(other.b));
     }
 
     public Complex subtract(Complex other) {
-        return new Complex(real.subtract(other.real), imaginary.subtract(other.imaginary));
+        return new Complex(a.subtract(other.a), b.subtract(other.b));
     }
 
     public Complex multiply(Complex other) {
-        Real realPart = real.multiply(other.real).subtract(imaginary.multiply(other.imaginary));  // ac - bd
-        Real imPart = imaginary.multiply(other.real).add(real.multiply(other.imaginary));  // bc + ad
+        Real realPart = a.multiply(other.a).subtract(b.multiply(other.b));  // ac - bd
+        Real imPart = b.multiply(other.a).add(a.multiply(other.b));  // bc + ad
         return new Complex(realPart, imPart);
     }
 
+    public Real modulus() {
+        return a.power(Rational.valueOf(2)).add(b.power(Rational.valueOf(2))).sqrt();
+    }
+
     public Complex divide(Complex other) {
-        Real denom = other.real.power(Rational.valueOf(2)).add(other.imaginary.power(Rational.valueOf(2)));
+        Real denom = other.a.power(Rational.valueOf(2)).add(other.b.power(Rational.valueOf(2)));
         // c^2 + d^2
-        Real realPartNum = real.multiply(other.real).add(imaginary.multiply(other.imaginary));  // ac + bd
-        Real imPartNum = imaginary.multiply(other.real).subtract(real.multiply(other.imaginary));  // bc - ad
+        Real realPartNum = a.multiply(other.a).add(b.multiply(other.b));  // ac + bd
+        Real imPartNum = b.multiply(other.a).subtract(a.multiply(other.b));  // bc - ad
         return new Complex(realPartNum.divide(denom), imPartNum.divide(denom));
     }
 
-    public Complex power(Complex other) {
+    public Complex power(int power) {
+        if (power < 0) {
+            throw new NumberException("Complex power must be non-negative integers");
+        }
         return null;
     }
 
+//    @Override
+//    public String toString() {
+//        if (getA()) {
+//            return a.toString();
+//        } else {
+//            return a + "+" + b + "i";
+//        }
+//    }
+
     @Override
-    public String toString() {
-        if (isReal()) {
-            return real.toString();
-        } else {
-            return real + "+" + imaginary + "i";
-        }
+    public boolean equals(Object other) {
+        return other instanceof Complex &&
+                a.equals(((Complex) other).a) &&
+                b.equals(((Complex) other).b);
     }
 }
