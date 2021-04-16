@@ -3,6 +3,8 @@ package trashsoftware.numbers;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +13,7 @@ public class Rational implements Real, FieldAble {
     public final static Rational ZERO = valueOf(0);
     public final static Rational ONE = valueOf(1);
     public final static Rational TWO = valueOf(2);
+    private static final DecimalFormat DOUBLE_FORMATTER = (DecimalFormat) NumberFormat.getInstance();
 
     public final static char FRONT_REPEAT_CHAR = '{';
     public final static char BACK_REPEAT_CHAR = '}';
@@ -45,6 +48,7 @@ public class Rational implements Real, FieldAble {
     }
 
     private Rational(String decimal) {
+        decimal = decimal.replace(",", "");
         int pointIndex = decimal.indexOf('.');
         if (pointIndex == -1) {  // it is an integer
             numerator = new BigInteger(decimal);
@@ -103,6 +107,10 @@ public class Rational implements Real, FieldAble {
 
     public static Rational valueOf(long value) {
         return new Rational(BigInteger.valueOf(value));
+    }
+
+    public static Rational fromDouble(double value) {
+        return new Rational(DOUBLE_FORMATTER.format(value));
     }
 
     public static Rational fromFraction(long numerator, long denominator) {

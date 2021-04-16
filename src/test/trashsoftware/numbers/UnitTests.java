@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
 
 class UnitTests {
 
@@ -197,6 +195,14 @@ class UnitTests {
     }
 
     @Test
+    void testMatrixDirectCreation() {
+        Matrix matrix = Matrix.createInstance(4, 3,
+                Rational.ONE, Rational.TWO, Rational.ZERO,
+                Rational.valueOf(21), Rational.fromFraction(3, 2));
+        System.out.println(matrix);
+    }
+
+    @Test
     void testMatrixMultiplication() {
         Matrix a = Matrix.integerMatrix(new long[][]{
                 {1, 0, 2},
@@ -280,6 +286,36 @@ class UnitTests {
         });
         a.toRowEchelonForm();
         System.out.println(a);
+    }
+
+    @Test
+    void fff() {
+        Matrix a = Matrix.createInstance(
+                new Real[][]{
+                        new Real[]{Rational.ZERO, Rational.ONE, Rational.ZERO, Rational.ZERO},
+                        new Real[]{Rational.ZERO, Rational.ZERO, Rational.ONE, Rational.ZERO},
+                        new Real[]{Rational.fromFraction(6, 11),
+                                Rational.ZERO, Rational.ZERO, Rational.fromFraction(5, 11)},
+                        new Real[]{Rational.ONE, Rational.ONE, Rational.ONE, Rational.ONE},
+                }
+        );
+//        a.toRowEchelonForm();
+//        System.out.println(a);
+        Matrix b = a.augment(new Real[]{Rational.ZERO, Rational.ZERO, Rational.ZERO, Rational.ONE});
+        System.out.println(b);
+        b.toReducedRowEchelonForm();
+        System.out.println(b);
+    }
+
+    @Test
+    void testSolveMatrix() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 1, 1},
+                {0, 2, 5},
+                {2, 5, -1}
+        });
+        Vector x = a.solve(Vector.integerVector(6, -4, 27));
+        System.out.println(x);
     }
 
     @Test
@@ -526,6 +562,33 @@ class UnitTests {
                 {2, 1, 0}
         });
         Matrix b = a.transpose();
+        System.out.println(b);
+    }
+
+    @Test
+    void testMatrixInverseComplicate() {
+        Matrix a = Matrix.fromDoubleMatrix(new double[][]{
+                {164.000000000000000, 9738.609999999997000, 22187.649999999998000, 1340680.812400000200000},
+                {9738.609999999997000, 639866.636900000000000, 1340680.812400000200000, 88967973.013519960000000},
+                {22187.649999999998000, 1340680.812400000200000, 3261133.171900000400000, 201230514.103751900000000},
+                {1340680.812400000200000, 88967973.013519960000000, 201230514.103751900000000, 13615622066.719547000000000}
+        });
+        System.out.println(a);
+        a.toRowEchelonForm();
+        System.out.println(a);
+    }
+
+    @Test
+    void testMatrix2() {
+        Matrix a = Matrix.integerMatrix(new long[][]{
+                {1, 0, 1, 0},
+                {1, 1, 0, 0},
+                {0, 1, 0, 1},
+                {0, 0, 1, 1}
+        });
+        System.out.println(a);
+        Matrix b = a.augment(Vector.fromDoubleVector(0.5, 0.5, 0.5, 0.5));
+        b.toReducedRowEchelonForm();
         System.out.println(b);
     }
 }

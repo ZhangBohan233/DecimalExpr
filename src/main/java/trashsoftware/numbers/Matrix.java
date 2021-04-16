@@ -1,5 +1,7 @@
 package trashsoftware.numbers;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
@@ -35,6 +37,50 @@ public class Matrix {
 
     public static Matrix createInstance(Real[][] rows) {
         return new Matrix(rows);
+    }
+
+    /**
+     * Creates a matrix instance by directly putting numbers.
+     * <p>
+     * There are at most {@code rowsCount * colsCount} elements. If there aren't enough elements to fill the whole
+     * matrix, 0's are filled.
+     * For example, {@code createInstance(3, 2, Rational.ONE, Rational.ONE, Rational.TWO)} creates
+     * [1 1]
+     * [2 0]
+     * [0 0]
+     *
+     * @param rowsCount number of rows (r)
+     * @param colsCount number of columns (c)
+     * @param elements  matrix elements, at most (r * c) elements.
+     * @return the newly created matrix instance
+     */
+    public static Matrix createInstance(int rowsCount, int colsCount, Real... elements) {
+        if (elements.length > rowsCount * colsCount)
+            throw new IncompatibleMatrixException("Too many elements for matrix. ");
+        Real[][] matrix = new Real[rowsCount][colsCount];
+        for (int r = 0; r < rowsCount; r++) {
+            for (int c = 0; c < colsCount; c++) {
+                int i = r * colsCount + c;
+                Real value;
+                if (i < elements.length) value = elements[i];
+                else value = Rational.ZERO;
+                matrix[r][c] = value;
+            }
+        }
+        return new Matrix(matrix);
+    }
+
+    public static Matrix fromDoubleMatrix(double[][] rows) {
+        Real[][] matrix = new Real[rows.length][];
+        for (int i = 0; i < rows.length; i++) {
+            double[] iRow = rows[i];
+            matrix[i] = new Real[iRow.length];
+            for (int j = 0; j < iRow.length; j++) {
+                Rational r = Rational.fromDouble(iRow[j]);
+                matrix[i][j] = r;
+            }
+        }
+        return new Matrix(matrix);
     }
 
     public static Matrix integerMatrix(long[][] rows) {
@@ -402,6 +448,16 @@ public class Matrix {
             }
         }
         return createInstance(matrix);
+    }
+
+    public Vector solve(Vector b) {
+        Matrix inv = inverse();
+        return inv.multiply(b);
+    }
+
+    public Vector solve(Real[] b) {
+        Matrix inv = inverse();
+        return inv.multiply(Vector.createInstance(b));
     }
 
     public int[] dimension() {

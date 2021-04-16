@@ -22,6 +22,14 @@ public class Vector {
         return new Vector(v);
     }
 
+    public static Vector fromDoubleVector(double... array) {
+        Real[] v = new Real[array.length];
+        for (int i = 0; i < array.length; i++) {
+            v[i] = Rational.fromDouble(array[i]);
+        }
+        return new Vector(v);
+    }
+
     public static Vector standardVector(int dimension, int x) {
         int[] v = new int[dimension];
         v[x] = 1;
@@ -42,12 +50,44 @@ public class Vector {
         }
     }
 
+    public Vector add(Vector other) {
+        if (dimension() != other.dimension()) {
+            throw new IncompatibleMatrixException("Vectors addition must have same dimension.");
+        }
+        Real[] res = new Real[dimension()];
+        for (int i = 0; i < dimension(); i++) {
+            res[i] = get(i).add(other.get(i));
+        }
+        return new Vector(res);
+    }
+
+    public Vector subtract(Vector other) {
+        if (dimension() != other.dimension()) {
+            throw new IncompatibleMatrixException("Vectors subtract must have same dimension.");
+        }
+        Real[] res = new Real[dimension()];
+        for (int i = 0; i < dimension(); i++) {
+            res[i] = get(i).subtract(other.get(i));
+        }
+        return new Vector(res);
+    }
+
     public Real[] toArray() {
         return vector;
     }
 
+    public Real get(int index) {
+        return vector[index];
+    }
+
     public int dimension() {
         return vector.length;
+    }
+
+    public Vector copy() {
+        Real[] numbers = new Real[vector.length];
+        System.arraycopy(vector, 0, numbers, 0, numbers.length);
+        return new Vector(numbers);
     }
 
     @Override
